@@ -52,4 +52,4 @@ export interface System extends NetworkFeature {
   lines: Line[];
 }
 
-export type NetworkFeatureTypes = Station | Segment | Service | Line | System;
+export type NetworkFeatureType = Station | Segment | Service | Line | System;
