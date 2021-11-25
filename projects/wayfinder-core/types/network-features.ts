@@ -8,9 +8,9 @@ export enum FeatureType {
   System = 'system'
 }
 
-export interface NetworkFeature {
-  id: string;
-  type: FeatureType;
+export interface NetworkFeature<T extends FeatureType = FeatureType> {
+  readonly id: string;
+  readonly type: T;
 }
 
 export interface Node extends NetworkFeature {
@@ -18,6 +18,7 @@ export interface Node extends NetworkFeature {
 }
 
 export interface Station extends Node {
+  type: FeatureType.Station;
   name: string;
 }
 
@@ -26,30 +27,42 @@ export enum Mode {
 }
 
 export interface Segment extends NetworkFeature {
+  type: FeatureType.Segment;
   mode: Mode;
   nodes: Node[];
 }
 
 export enum ServiceType {
-  AllDay = 'all-day',
+  Standard = 'standard',
   Limited = 'limited'
 }
 
 export interface Service extends NetworkFeature {
+  type: FeatureType.Service;
   segments: Segment[];
   serviceType: ServiceType;
 }
 
 export interface Line extends NetworkFeature {
+  type: FeatureType.Line;
   name: string;
   color: string;
   services: Service[];
 }
 
 export interface System extends NetworkFeature {
+  type: FeatureType.System;
   name: string;
   nodes: Node[];
   lines: Line[];
 }
 
 export type NetworkFeatureType = Station | Segment | Service | Line | System;
+
+export interface NetworkFeatureByType {
+  [FeatureType.Station]: Station;
+  [FeatureType.Segment]: Segment;
+  [FeatureType.Service]: Service;
+  [FeatureType.Line]: Line;
+  [FeatureType.System]: System;
+}
