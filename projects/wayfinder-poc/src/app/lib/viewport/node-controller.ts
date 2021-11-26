@@ -3,7 +3,7 @@ import { Renderable } from './viewport.types';
 import Konva from 'konva';
 import { add, getSegments, toDeg } from './viewport-utils';
 import { flatten } from 'lodash';
-import { Vector2 } from '@wf-core/types/geometry';
+import { Vector2 } from '@wf-core/math';
 import { Camera } from './camera';
 
 const NODE_STYLE: Partial<Konva.CircleConfig> = {
@@ -52,7 +52,6 @@ export class WFNodeController<T extends WFNode = WFNode> {
 
   getRenderNodePosition(lineId: string) {
     const origin = this.camera.project(this.node.position);
-    console.log('node origin ' + origin);
     const { index, orientation } = this.lineRenderNodeOptions.find((options) => options.lineId === lineId)!;
     const radius = NODE_STYLE.radius!;
     const offset = ((-this.nodeLines.length + index) * radius * 2) + radius;
@@ -93,7 +92,6 @@ export class StationController extends WFNodeController<Station> {
 
   override getLineNodeMarker(lineId: string): Renderable {
     const position = this.getRenderNodePosition(lineId).asExpression();
-    console.log('line node marker ' + position);
     return new Konva.Circle({ ...STATION_MARKER_STYLE, ...position });
   }
 }

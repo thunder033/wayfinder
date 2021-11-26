@@ -1,4 +1,4 @@
-import { Vector2 } from './geometry';
+import { Vector2Expression } from './geometry';
 
 export enum FeatureType {
   Station = 'station',
@@ -15,7 +15,7 @@ export interface NetworkFeature<T extends FeatureType = FeatureType> {
 }
 
 export interface WFNode extends NetworkFeature {
-  position: Vector2.Expression;
+  position: Vector2Expression;
 }
 
 export interface Station extends WFNode {

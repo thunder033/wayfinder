@@ -1,4 +1,4 @@
-import { Vector2 } from './geometry';
+import { Vector2Expression } from './geometry';
 import { NetworkFeature, NetworkFeatureType } from './network-features';
 
 export type NetworkFeatureChange = Partial<Omit<NetworkFeatureType, 'id' | 'type'>>;
@@ -13,6 +13,6 @@ export interface Alteration {
 
 export interface Network {
   id: string;
-  size: Vector2;
+  size: Vector2Expression;
   ledger: Alteration[];
 }

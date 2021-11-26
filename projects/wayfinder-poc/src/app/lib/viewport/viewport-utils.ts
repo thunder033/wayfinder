@@ -1,6 +1,6 @@
 import { Line, Segment, WFNode } from '@wf-core/types/network-features';
 import { flatten, last } from 'lodash';
-import { Vector2 } from '@wf-core/types/geometry';
+import { Vector2 } from '@wf-core/math';
 
 export function add(a: number, b: number): number {
   return a + b;

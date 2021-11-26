@@ -9,9 +9,9 @@ import {
   switchMap,
 } from 'rxjs';
 import Konva from 'konva';
-import { flatten, flattenDeep } from 'lodash';
+import { flatten, flattenDeep, map as _map } from 'lodash';
 
-import { Line, WFNode } from '@wf-core/types/network-features';
+import { Line, System, WFNode } from '@wf-core/types/network-features';
 
 import { SystemService } from '../system.service';
 import { Renderable } from './viewport.types';
@@ -19,6 +19,8 @@ import { asLinePoints, chunkLineNodes } from './viewport-utils';
 import { StationController, WFNodeController } from './node-controller';
 import { cacheValue, chainRead, withSampleFrom } from '@wf-core/utils/rx-operators';
 import { Camera } from './camera';
+import { Vector2 } from '@wf-core/math';
+import { getBoundingBox } from '@wf-core/utils/geomety';
 
 // AlterationService
 // - alteration$
@@ -27,6 +29,11 @@ import { Camera } from './camera';
 const LINE_STYLE: Partial<Konva.LineConfig> = {
   stroke: '#000',
   strokeWidth: 8,
+}
+
+function getSystemCenter(system: System): Vector2 {
+  const { minX, minY, maxX, maxY } = getBoundingBox(_map(system.nodes, 'position'));
+  return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
 @Component({
@@ -74,6 +81,8 @@ export class ViewportComponent {
       .subscribe({
         error(thrown) { console.error(thrown); },
         next: ([system, stage, camera]) => {
+          camera.position.set(getSystemCenter(system));
+
           system.nodes.forEach((node) => WFNodeController.create(camera, node, system.lines));
 
           const lineShapes = system.lines.map((line) => this.getLineShapes(line));

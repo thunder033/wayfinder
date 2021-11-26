@@ -1,4 +1,4 @@
-import { Vector2 } from '@wf-core/types/geometry';
+import { Vector2 } from '@wf-core/math';
 import Konva from 'konva';
 import { combineLatest, filter } from 'rxjs';
 
@@ -17,14 +17,25 @@ export class Camera {
   ])
 
   constructor(private stage: Konva.Stage) {
-    this.imageSizePx.$.pipe(filter(Vector2.Rx.isSet)).subscribe((imageSize) => {
-      console.log('set image size ' + imageSize, imageSize);
-        this.imageOriginPx.set(imageSize.clone().divideScalar(2));
-      },
+    this.imageSizePx.$.pipe(filter(Vector2.Rx.isSet)).subscribe((imageSize) =>
+      this.imageOriginPx.set(imageSize.clone().divideScalar(2)),
     );
   }
 
   project(point: Vector2.Expression): Vector2 {
-    return Vector2.from(point).sub(this.position).multiply(this.positionScale).add(this.imageOriginPx);
+    return Vector2.from(point)
+      .sub(this.position)
+      .multiply(this.positionScale)
+      .add(this.imageOriginPx);
+  }
+
+  toString() {
+    return `Camera {
+  position: ${this.position}
+  positionScale: ${this.positionScale}
+  imageScale: ${this.imageScale}
+  imageSizePx: ${this.imageSizePx}
+  imageOriginPx: ${this.imageOriginPx}
+    }`
   }
 }
