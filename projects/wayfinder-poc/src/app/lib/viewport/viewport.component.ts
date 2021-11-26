@@ -8,6 +8,8 @@ import { Vector2 } from '@wf-core/types/geometry';
 
 import { SystemService } from '../system.service';
 
+type Renderable = Konva.Shape | Konva.Group;
+
 const NODE_STYLE: Partial<Konva.CircleConfig> = {
   radius: 4,
 }
@@ -24,8 +26,20 @@ const LINE_STYLE: Partial<Konva.LineConfig> = {
   strokeWidth: 8,
 }
 
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+function toDeg(rad: number): number {
+  return rad / Math.PI * 180;
+}
+
+function getSegments(line: Line): Segment[] {
+  return flatten(line.services.map(({ segments }) => segments));
+}
+
 function chunkLineNodes(line: Line): WFNode[][] {
-  return flatten(line.services.map(({ segments }) => segments)).reduce(
+  return getSegments(line).reduce(
     (chunks: WFNode[][], segment: Segment) => {
       const head = chunks.pop();
       const chunk = head && segment.nodes[0].id === last(head)?.id
@@ -38,14 +52,15 @@ function chunkLineNodes(line: Line): WFNode[][] {
   )
 }
 
-function mapToViewportCoords(position: Vector2): Vector2 {
+function mapToViewportCoords(position: Vector2.Expression): Vector2.Expression {
+  const origin = { x: 0, y: 500 }
   return {
-    x: position.x * 100,
-    y: position.y * 100,
+    x: origin.x + position.x * 100,
+    y: origin.y + position.y * -100,
   }
 }
 
-function asLinePoints(chunk: Vector2[]): number[] {
+function asLinePoints(chunk: Vector2.Expression[]): number[] {
   return flatten(chunk.map(({ x, y }) => [x, y]));
 }
 
@@ -77,8 +92,8 @@ class WFNodeController {
     private readonly lines: Line[],
   ) {}
 
-  getLineMarkerShapes(lineId: string): Konva.Shape[] {
-    return [];
+  getLineNodeMarker(lineId: string): Renderable {
+    return new Konva.Group();
   }
 
   getRenderNodePosition(lineId: string) {
@@ -86,7 +101,6 @@ class WFNodeController {
     const options = this.lineRenderNodeOptions.find((options) => options.lineId === lineId)!;
     const radius = NODE_STYLE.radius!;
     const offset = ((-this.nodeLines.length + options.index) * radius * 2) + radius;
-    console.log(origin);
     return {
       x: origin.x + offset * Math.sin(options.orientation),
       y: origin.y + offset * Math.cos(options.orientation),
@@ -100,14 +114,25 @@ class WFNodeController {
 
   private generateLineRenderNodeOptions(): RenderNodeOptions[] {
     return this.nodeLines.map((line, index) => {
-      return { lineId: line.id, index, orientation: 0 };
+      const segment = getSegments(line).find((segment) => segment.nodes.includes(this.node))!;
+      const nodeIndex = segment.nodes.indexOf(this.node);
+      const leftNode = segment.nodes[nodeIndex - 1];
+      const rightNode = segment.nodes[nodeIndex + 1];
+
+      const angleLeft = !leftNode ? NaN : Vector2.angleTo(leftNode.position, this.node.position);
+      const angleRight = !rightNode ? NaN : Vector2.angleTo(this.node.position, rightNode.position);
+      const angles = [angleLeft, angleRight].filter(Number.isFinite);
+      console.log(`${line.name} ${this.node.id}`, [angleLeft, angleRight].map(toDeg))
+      const orientation = angles.map((v) => v - 0).reduce(add, 0) / angles.length;
+
+      return { lineId: line.id, index, orientation };
     });
   }
 }
 
 class StationController extends WFNodeController {
-  override getLineMarkerShapes(lineId: string): Konva.Shape[] {
-    return [new Konva.Circle({ ...this.getRenderNodePosition(lineId), ...STATION_MARKER_STYLE })]
+  override getLineNodeMarker(lineId: string): Konva.Shape {
+    return new Konva.Circle({ ...this.getRenderNodePosition(lineId), ...STATION_MARKER_STYLE });
   }
 }
 
@@ -144,7 +169,7 @@ export class ViewportComponent implements OnInit {
       })
   }
 
-  getLineShapes(line: Line): Konva.Shape[] {
+  getLineShapes(line: Line): Renderable[] {
     const chunks = chunkLineNodes(line);
     const lines = chunks.map((chunk) =>
       new Konva.Line({
@@ -154,7 +179,7 @@ export class ViewportComponent implements OnInit {
       })
     );
     const nodes = flattenDeep<WFNode>(line.services.map(({ segments }) => segments.map(({ nodes }) => nodes)));
-    const markers = nodes.map((node) => WFNodeController.get(node.id).getLineMarkerShapes(line.id));
+    const markers = nodes.map((node) => WFNodeController.get(node.id).getLineNodeMarker(line.id));
 
     return [...lines, ...markers];
   }

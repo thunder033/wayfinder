@@ -1,11 +1,12 @@
 import { Vector2 } from './geometry';
 
 export enum FeatureType {
-  Station= 'station',
+  Station = 'station',
   Segment = 'segment',
   Service = 'service',
   Line = 'line',
-  System = 'system'
+  System = 'system',
+  GeometryNode = 'geometry-node',
 }
 
 export interface NetworkFeature<T extends FeatureType = FeatureType> {
@@ -14,7 +15,7 @@ export interface NetworkFeature<T extends FeatureType = FeatureType> {
 }
 
 export interface WFNode extends NetworkFeature {
-  position: Vector2;
+  position: Vector2.Expression;
 }
 
 export interface Station extends WFNode {
@@ -57,9 +58,10 @@ export interface System extends NetworkFeature {
   lines: Line[];
 }
 
-export type NetworkFeatureType = Station | Segment | Service | Line | System;
+export type NetworkFeatureType = WFNode | Station | Segment | Service | Line | System;
 
 export interface NetworkFeatureByType {
+  [FeatureType.GeometryNode]: WFNode;
   [FeatureType.Station]: Station;
   [FeatureType.Segment]: Segment;
   [FeatureType.Service]: Service;
