@@ -6,10 +6,11 @@ import {
   ObservableInputTuple,
   of,
   OperatorFunction,
-  shareReplay,
+  shareReplay, switchMap,
   take,
   tap
 } from 'rxjs';
+import '../types/ambient';
 
 export function cacheValue<T>() {
   return shareReplay<T>({ bufferSize: 1, refCount: true });
@@ -23,6 +24,10 @@ export function withSampleFrom<T, O extends unknown[]>(...inputs: [...Observable
 
 export function sampleMap<A, B>(source$: Observable<B>): OperatorFunction<A, B> {
   return concatMap(() => source$.pipe(take(1)));
+}
+
+export function chainRead<T, K extends KeysOfType<T, Observable<any>>>(source$: Observable<T>, key: K): Observable<T[K]> {
+  return source$.pipe(switchMap((v) => v[key]));
 }
 
 // logging utility

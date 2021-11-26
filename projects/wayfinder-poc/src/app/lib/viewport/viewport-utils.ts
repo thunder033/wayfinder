@@ -28,14 +28,6 @@ export function chunkLineNodes(line: Line): WFNode[][] {
   )
 }
 
-export function mapToViewportCoords(position: Vector2.Expression): Vector2.Expression {
-  const origin = { x: 0, y: 500 }
-  return {
-    x: origin.x + position.x * 100,
-    y: origin.y + position.y * -100,
-  }
-}
-
 export function asLinePoints(chunk: Vector2.Expression[]): number[] {
   return flatten(chunk.map(({ x, y }) => [x, y]));
 }

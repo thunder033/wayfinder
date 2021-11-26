@@ -1,9 +1,10 @@
 import { FeatureType, Line, Station, WFNode } from '@wf-core/types/network-features';
 import { Renderable } from './viewport.types';
 import Konva from 'konva';
-import { add, getSegments, mapToViewportCoords, toDeg } from './viewport-utils';
+import { add, getSegments, toDeg } from './viewport-utils';
 import { flatten } from 'lodash';
 import { Vector2 } from '@wf-core/types/geometry';
+import { Camera } from './camera';
 
 const NODE_STYLE: Partial<Konva.CircleConfig> = {
   radius: 4,
@@ -24,10 +25,10 @@ interface RenderNodeOptions {
 
 export class WFNodeController<T extends WFNode = WFNode> {
   private static controllers: {[nodeId: string]: WFNodeController} = {};
-  static create(node: WFNode, lines: Line[]): WFNodeController {
+  static create(camera: Camera, node: WFNode, lines: Line[]): WFNodeController {
     const controller = node.type === FeatureType.Station
-      ? new StationController(node as Station, lines)
-      : new WFNodeController(node, lines);
+      ? new StationController(camera, node as Station, lines)
+      : new WFNodeController(camera, node, lines);
     WFNodeController.controllers[node.id] = controller;
     return controller;
   }
@@ -40,6 +41,7 @@ export class WFNodeController<T extends WFNode = WFNode> {
   private lineRenderNodeOptions = this.generateLineRenderNodeOptions();
 
   constructor(
+    protected readonly camera: Camera,
     protected readonly node: T,
     protected readonly lines: Line[],
   ) {}
@@ -49,14 +51,13 @@ export class WFNodeController<T extends WFNode = WFNode> {
   }
 
   getRenderNodePosition(lineId: string) {
-    const origin = mapToViewportCoords(this.node.position);
-    const options = this.lineRenderNodeOptions.find((options) => options.lineId === lineId)!;
+    const origin = this.camera.project(this.node.position);
+    console.log('node origin ' + origin);
+    const { index, orientation } = this.lineRenderNodeOptions.find((options) => options.lineId === lineId)!;
     const radius = NODE_STYLE.radius!;
-    const offset = ((-this.nodeLines.length + options.index) * radius * 2) + radius;
-    return {
-      x: origin.x + offset * Math.sin(options.orientation),
-      y: origin.y + offset * Math.cos(options.orientation),
-    }
+    const offset = ((-this.nodeLines.length + index) * radius * 2) + radius;
+    return origin
+      .add({ x: offset * Math.sin(orientation), y: offset * Math.cos(orientation) })
   }
 
   private hasNode(line: Line) {
@@ -86,11 +87,13 @@ export class StationController extends WFNodeController<Station> {
   getStationLabel(): Renderable {
     return new Konva.Text({
       text: this.node.name,
-      ...mapToViewportCoords(this.node.position),
+      ...this.camera.project(this.node.position).asExpression(),
     });
   }
 
   override getLineNodeMarker(lineId: string): Renderable {
-    return new Konva.Circle({ ...STATION_MARKER_STYLE, ...this.getRenderNodePosition(lineId) });
+    const position = this.getRenderNodePosition(lineId).asExpression();
+    console.log('line node marker ' + position);
+    return new Konva.Circle({ ...STATION_MARKER_STYLE, ...position });
   }
 }

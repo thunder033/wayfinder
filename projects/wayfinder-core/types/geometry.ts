@@ -13,6 +13,10 @@ export class Vector2 implements Vector2Expression {
     return Math.atan2(b.y - a.y, b.x - a.x);
   }
 
+  static from(expression: Vector2Expression): Vector2 {
+    return new Vector2(expression.x, expression.y);
+  }
+
   protected readonly buffer: [number, number] = [0, 0];
 
   get x() { return this.buffer[0]; }
@@ -39,8 +43,17 @@ export class Vector2 implements Vector2Expression {
     return new Vector2(this.x, this.y);
   }
 
-  getExpression(): Vector2Expression {
+  asExpression(): Vector2Expression {
     return { x: this.buffer[0], y: this.buffer[1] };
+  }
+
+  *[Symbol.iterator]() {
+    yield this.buffer[0];
+    yield this.buffer[1];
+  }
+
+  toString(): string {
+    return `[${this.x}, ${this.y}]`;
   }
 
   add(term: Vector2Expression): this {
@@ -64,6 +77,13 @@ export class Vector2 implements Vector2Expression {
     });
   }
 
+  divide(term: Vector2Expression): this {
+    return this.set({
+      x: this.x / term.x,
+      y: this.y / term.y,
+    });
+  }
+
   scale(scalar: number): this {
     return this.set({
       x: this.x + scalar,
@@ -83,6 +103,14 @@ class RxVector2 extends Vector2 {
   private change = new Subject<this>();
 
   $: Observable<RxVector2> = this.change.asObservable();
+
+  static isSet(v: RxVector2): boolean {
+    return !Number.isNaN(v.x) && !Number.isNaN(v.y);
+  }
+
+  constructor(x: number = NaN, y: number = NaN) {
+    super(x, y);
+  }
 
   override set({ x = this.x, y = this.y }: Vector2Expression): this {
     Object.assign(this.buffer, [x, y]);

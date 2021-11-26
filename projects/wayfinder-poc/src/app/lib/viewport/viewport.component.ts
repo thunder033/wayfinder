@@ -1,5 +1,13 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { debounceTime, fromEvent, map, ReplaySubject, share, switchMap, withLatestFrom } from 'rxjs';
+import {
+  debounceTime,
+  fromEvent,
+  map,
+  ReplaySubject,
+  share,
+  startWith,
+  switchMap,
+} from 'rxjs';
 import Konva from 'konva';
 import { flatten, flattenDeep } from 'lodash';
 
@@ -9,8 +17,8 @@ import { SystemService } from '../system.service';
 import { Renderable } from './viewport.types';
 import { asLinePoints, chunkLineNodes } from './viewport-utils';
 import { StationController, WFNodeController } from './node-controller';
-import { Vector2 } from '@wf-core/types/geometry';
-import { cacheValue, withSampleFrom } from '@wf-core/utils/rx-operators';
+import { cacheValue, chainRead, withSampleFrom } from '@wf-core/utils/rx-operators';
+import { Camera } from './camera';
 
 // AlterationService
 // - alteration$
@@ -19,28 +27,6 @@ import { cacheValue, withSampleFrom } from '@wf-core/utils/rx-operators';
 const LINE_STYLE: Partial<Konva.LineConfig> = {
   stroke: '#000',
   strokeWidth: 8,
-}
-
-class Camera {
-  position = new Vector2.Rx(0, 0);
-
-  // -100 to account for inverted screen space y-axis
-  positionScale = new Vector2.Rx(100, -100);
-  imageScale = new Vector2.Rx(1, 1);
-  imageSizePx = new Vector2.Rx(0, 0);
-
-  constructor(private stage: Konva.Stage) {}
-
-  project(point: Vector2): Vector2 {
-    return point.clone().sub(this.position).multiply(this.positionScale);
-  }
-
-  getImageOrigin(): Vector2 {
-    const { height, width } = this.stage.size();
-    const { x: scale } = this.stage.scale();
-    // account for scaling of the stage
-    return new Vector2(width, height).divideScalar(2).scale(1 / scale);
-  }
 }
 
 @Component({
@@ -71,7 +57,7 @@ export class ViewportComponent {
 
   constructor(private systemService: SystemService) {
     this.onResize$
-      .pipe(withLatestFrom(this.camera$, this.renderTarget$))
+      .pipe(startWith(null), withSampleFrom(this.camera$, this.renderTarget$))
       .subscribe(([, camera, renderTarget]) => {
         camera.imageSizePx.set({ x: renderTarget.clientWidth, y: renderTarget.clientHeight });
       });
@@ -84,11 +70,11 @@ export class ViewportComponent {
       });
 
     this.systemService.system$
-      .pipe(withSampleFrom(this.stage$))
+      .pipe(withSampleFrom(this.stage$, this.camera$, chainRead(this.camera$, 'ready$')))
       .subscribe({
         error(thrown) { console.error(thrown); },
-        next: ([system, stage]) => {
-          system.nodes.forEach((node) => WFNodeController.create(node, system.lines));
+        next: ([system, stage, camera]) => {
+          system.nodes.forEach((node) => WFNodeController.create(camera, node, system.lines));
 
           const lineShapes = system.lines.map((line) => this.getLineShapes(line));
           const stationLabels = system.nodes
