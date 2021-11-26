@@ -35,13 +35,28 @@ const station3 = createFeature(FeatureType.Station, {
   position: { x: 3, y: 2},
 });
 
+const station4 = createFeature(FeatureType.Station, {
+  name: 'Station 4',
+  position: { x: 1, y: 3},
+});
+
 const segment1 = createFeature(FeatureType.Segment, {
   mode: Mode.Metro,
   nodes: [station1, station2, station3],
 });
 
+const segment2 = createFeature(FeatureType.Segment, {
+  mode: Mode.Metro,
+  nodes: [station4, station2, station3],
+})
+
 const service1 = createFeature(FeatureType.Service, {
   segments: [segment1],
+  serviceType: ServiceType.Standard,
+});
+
+const service2 = createFeature(FeatureType.Service, {
+  segments: [segment2],
   serviceType: ServiceType.Standard,
 });
 
@@ -51,10 +66,16 @@ const line1 = createFeature(FeatureType.Line, {
   services: [service1],
 });
 
+const line2 = createFeature(FeatureType.Line, {
+  name: 'Blue Line',
+  color: '#00f',
+  services: [service2],
+});
+
 const system1 = createFeature(FeatureType.System, {
   name: 'Test System',
-  nodes: [station1, station2, station3],
-  lines: [line1],
+  nodes: [station1, station2, station3, station4],
+  lines: [line1, line2],
 });
 
 @Injectable({

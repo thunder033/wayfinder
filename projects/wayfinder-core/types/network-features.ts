@@ -13,11 +13,11 @@ export interface NetworkFeature<T extends FeatureType = FeatureType> {
   readonly type: T;
 }
 
-export interface Node extends NetworkFeature {
+export interface WFNode extends NetworkFeature {
   position: Vector2;
 }
 
-export interface Station extends Node {
+export interface Station extends WFNode {
   type: FeatureType.Station;
   name: string;
 }
@@ -29,7 +29,7 @@ export enum Mode {
 export interface Segment extends NetworkFeature {
   type: FeatureType.Segment;
   mode: Mode;
-  nodes: Node[];
+  nodes: WFNode[];
 }
 
 export enum ServiceType {
@@ -53,7 +53,7 @@ export interface Line extends NetworkFeature {
 export interface System extends NetworkFeature {
   type: FeatureType.System;
   name: string;
-  nodes: Node[];
+  nodes: WFNode[];
   lines: Line[];
 }
 
