@@ -1,12 +1,20 @@
 .legend {
   display: block;
   border: 1px #333 solid;
-  border-radius: .5em;
+  border-radius: .25em;
   padding: 1em;
+  background: #eee;
+  box-shadow: 1px 1px 1px #555;
+}
+
+h3 {
+  margin: 0 0 .3em;
 }
 
 .line-sample {
   width: 1em;
   height: 1em;
   display: inline-block;
+  margin-right: .5em;
+  box-shadow: 1px 1px 1px #555;
 }
