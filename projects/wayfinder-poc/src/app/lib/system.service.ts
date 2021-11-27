@@ -9,11 +9,12 @@ import {
   WFNode,
   WFNodeType,
 } from '@wf-core/types/network-features';
-import { of } from 'rxjs';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { NetworkState, WFState } from '@wf-core/types/store';
 import { isArray } from 'lodash';
-import { network } from '@wf-core/state/network.reducer';
+import { network } from '@wf-core/state/network';
+import { isNetworkFeature } from '@wf-core/utils/network-feature.utils';
+import { cacheValue } from '@wf-core/utils/rx-operators';
 
 let id = 0;
 function createFeature<F extends FeatureType, T extends NetworkFeature = NetworkFeatureByType[F]>(
@@ -89,12 +90,6 @@ const system1 = createFeature(FeatureType.System, {
   lines: [line2, line1],
 });
 
-function isNetworkFeature<T extends FeatureType>(input: any, type?: T): input is NetworkFeature<T> {
-  return 'id' in input
-    && Object.values(FeatureType).includes(input?.type)
-    && (!type || input.type === type);
-}
-
 function dehydrate<T extends NetworkFeature>(feature: T): Dehydrated<T> {
   return Object.entries(feature).reduce((out, [key, value]) => ({
     ...out,
@@ -115,10 +110,9 @@ function toMap<T extends NetworkFeature>(...input: T[]): {[id: string]: Dehydrat
   providedIn: 'root'
 })
 export class SystemService {
+  system$ = this.store$.pipe(select(network.getSystem(system1.id)), cacheValue());
 
-  system$ = of(system1);
-
-  constructor(store$: Store<WFState>) {
+  constructor(private store$: Store<WFState>) {
     const state: NetworkState = {
       node: toMap<WFNode<WFNodeType>>(station1, station2, station3, station4, geometryNode1),
       segment: toMap(segment1, segment2),

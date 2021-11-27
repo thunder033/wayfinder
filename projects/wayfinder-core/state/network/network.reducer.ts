@@ -1,5 +1,5 @@
 import { createAction, createReducer, on, props } from '@ngrx/store';
-import { NetworkState } from '../types/store';
+import { NetworkState } from '../../types/store';
 
 export const networkDefaultState: NetworkState = {
   node: {},
@@ -9,13 +9,11 @@ export const networkDefaultState: NetworkState = {
   system: {},
 };
 
-export const actions = {
+export const networkActions = {
   restore: createAction('NETWORK::RESTORE', props<{ state: NetworkState }>()),
 };
 
-const reducer = createReducer(
+export const networkReducer = createReducer(
   networkDefaultState,
-  on(actions.restore, (_, { state }) => ({ ...state })),
+  on(networkActions.restore, (_, { state }) => ({ ...state })),
 );
-
-export const network = { reducer, ...actions };

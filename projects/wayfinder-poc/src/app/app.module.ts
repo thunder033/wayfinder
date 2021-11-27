@@ -7,7 +7,7 @@ import { SystemService } from './lib/system.service';
 import { ViewportComponent } from './lib/viewport/viewport.component';
 import { LegendComponent } from './lib/legend/legend.component';
 import { StoreModule } from '@ngrx/store';
-import { network } from '@wf-core/state/network.reducer';
+import { network } from '@wf-core/state/network';
 
 @NgModule({
   declarations: [
