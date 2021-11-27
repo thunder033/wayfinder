@@ -1,7 +1,12 @@
 import { Vector2Expression } from './geometry';
-import { NetworkFeature, NetworkFeatureType } from './network-features';
+import { NetworkFeature } from './network-features';
 
-export type NetworkFeatureChange = Partial<Omit<NetworkFeatureType, 'id' | 'type'>>;
+export interface NetworkFeatureChange<T = any> {
+  featureId: string;
+  path: ObjectPathNormalize<T>;
+  left: any;
+  right: any;
+}
 
 export interface Alteration {
   id: string;

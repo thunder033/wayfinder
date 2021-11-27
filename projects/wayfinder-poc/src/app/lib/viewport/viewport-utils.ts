@@ -1,5 +1,5 @@
 import { Line, Segment, WFNode } from '@wf-core/types/network-features';
-import { flatten, last } from 'lodash';
+import { last } from 'lodash';
 import { Vector2 } from '@wf-core/math';
 
 export function add(a: number, b: number): number {
@@ -11,7 +11,7 @@ export function toDeg(rad: number): number {
 }
 
 export function getSegments(line: Line): Segment[] {
-  return flatten(line.services.map(({ segments }) => segments));
+  return line.services.map(({ segments }) => segments).flat();
 }
 
 export function chunkLineNodes(line: Line): WFNode[][] {
@@ -29,5 +29,5 @@ export function chunkLineNodes(line: Line): WFNode[][] {
 }
 
 export function asLinePoints(chunk: Vector2.Expression[]): number[] {
-  return flatten(chunk.map(({ x, y }) => [x, y]));
+  return chunk.map(({ x, y }) => [x, y]).flat();
 }

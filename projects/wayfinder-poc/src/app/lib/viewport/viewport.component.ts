@@ -9,27 +9,36 @@ import {
   switchMap,
 } from 'rxjs';
 import Konva from 'konva';
-import { flatten, flattenDeep, map as _map } from 'lodash';
+import { map as _map } from 'lodash';
 
-import { Line, System, WFNode } from '@wf-core/types/network-features';
+import { System } from '@wf-core/types/network-features';
 
 import { SystemService } from '../system.service';
-import { Renderable } from './viewport.types';
-import { asLinePoints, chunkLineNodes } from './viewport-utils';
-import { StationController, WFNodeController } from './node-controller';
 import { cacheValue, chainRead, withSampleFrom } from '@wf-core/utils/rx-operators';
 import { Camera } from './camera';
 import { Vector2 } from '@wf-core/math';
 import { getBoundingBox } from '@wf-core/utils/geomety';
+import { NetworkPresenter } from '../presenter/network-presenter';
 
 // AlterationService
 // - alteration$
-//
-
-const LINE_STYLE: Partial<Konva.LineConfig> = {
-  stroke: '#000',
-  strokeWidth: 8,
-}
+// - displayAlteration(id: string);
+// - incrementAlteration();
+// - decrementAlteration();
+// abstract FeaturePresenter<T>
+// - renderable$: Observable<Renderable>
+// - featureId
+// - featureType
+// - teardown();
+// > NodePresenter
+// > StationPresenter
+// > LinePresenter
+// > SystemPresenter
+// NetworkPresenter
+// - presenters
+// - addFeature
+// - removeFeature
+// - updateFeature
 
 function getSystemCenter(system: System): Vector2 {
   const { minX, minY, maxX, maxY } = getBoundingBox(_map(system.nodes, 'position'));
@@ -83,21 +92,12 @@ export class ViewportComponent {
         next: ([system, stage, camera]) => {
           camera.position.set(getSystemCenter(system));
 
-          system.nodes.forEach((node) => WFNodeController.create(camera, node, system.lines));
-
-          const lineShapes = system.lines.map((line) => this.getLineShapes(line));
-          const stationLabels = system.nodes
-            .map(({id}) => {
-              const controller = WFNodeController.get(id);
-              return controller instanceof StationController ? controller.getStationLabel() : null
-            })
-            .filter((label) => !!label);
-
           const layer = new Konva.Layer();
           stage.add(layer);
-          console.log(flatten(lineShapes));
-          flatten(lineShapes).forEach((shape) => layer.add(shape));
-          stationLabels.forEach((shape) => layer.add(shape!));
+
+          const networkPresenter = new NetworkPresenter(this.systemService);
+          networkPresenter.renderable$.subscribe((renderable) => layer.add(renderable));
+          networkPresenter.present(camera);
           this.render();
         },
       })
@@ -107,18 +107,5 @@ export class ViewportComponent {
     this.stage$.subscribe((stage) => stage.draw());
   }
 
-  getLineShapes(line: Line): Renderable[] {
-    const chunks = chunkLineNodes(line);
-    const lines = chunks.map((chunk) =>
-      new Konva.Line({
-        points: asLinePoints(chunk.map((node) => WFNodeController.get(node.id).getRenderNodePosition(line.id))),
-        ...LINE_STYLE,
-        stroke: line.color,
-      })
-    );
-    const nodes = flattenDeep<WFNode>(line.services.map(({ segments }) => segments.map(({ nodes }) => nodes)));
-    const markers = nodes.map((node) => WFNodeController.get(node.id).getLineNodeMarker(line.id));
 
-    return [...lines, ...markers];
-  }
 }

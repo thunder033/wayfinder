@@ -1,10 +1,10 @@
 import { FeatureType, Line, Station, WFNode } from '@wf-core/types/network-features';
-import { Renderable } from './viewport.types';
+import { Renderable } from '../viewport/viewport.types';
 import Konva from 'konva';
-import { add, getSegments, toDeg } from './viewport-utils';
-import { flatten } from 'lodash';
+import { add, getSegments, toDeg } from '../viewport/viewport-utils';
 import { Vector2 } from '@wf-core/math';
-import { Camera } from './camera';
+import { Camera } from '../viewport/camera';
+import { FeaturePresenter } from './feature-presenter';
 
 const NODE_STYLE: Partial<Konva.CircleConfig> = {
   radius: 4,
@@ -23,18 +23,18 @@ interface RenderNodeOptions {
   index: number;
 }
 
-export class WFNodeController<T extends WFNode = WFNode> {
-  private static controllers: {[nodeId: string]: WFNodeController} = {};
-  static create(camera: Camera, node: WFNode, lines: Line[]): WFNodeController {
+export class NodePresenter<T extends WFNode = WFNode> extends FeaturePresenter {
+  private static controllers: {[nodeId: string]: NodePresenter} = {};
+  static create(camera: Camera, node: WFNode, lines: Line[]): NodePresenter {
     const controller = node.type === FeatureType.Station
-      ? new StationController(camera, node as Station, lines)
-      : new WFNodeController(camera, node, lines);
-    WFNodeController.controllers[node.id] = controller;
+      ? new StationPresenter(camera, node as Station, lines)
+      : new NodePresenter(camera, node, lines);
+    NodePresenter.controllers[node.id] = controller;
     return controller;
   }
 
-  static get(id: string): WFNodeController {
-    return WFNodeController.controllers[id];
+  static get(id: string): NodePresenter {
+    return NodePresenter.controllers[id];
   }
 
   private nodeLines = this.lines.filter((line) => this.hasNode(line));
@@ -44,7 +44,9 @@ export class WFNodeController<T extends WFNode = WFNode> {
     protected readonly camera: Camera,
     protected readonly node: T,
     protected readonly lines: Line[],
-  ) {}
+  ) {
+    super();
+  }
 
   getLineNodeMarker(lineId: string): Renderable {
     return new Konva.Group();
@@ -60,8 +62,7 @@ export class WFNodeController<T extends WFNode = WFNode> {
   }
 
   private hasNode(line: Line) {
-    return flatten(line.services.map(({ segments }) => segments))
-      .some((segment) => segment.nodes.includes(this.node));
+    return getSegments(line).some((segment) => segment.nodes.includes(this.node));
   }
 
   private generateLineRenderNodeOptions(): RenderNodeOptions[] {
@@ -82,7 +83,7 @@ export class WFNodeController<T extends WFNode = WFNode> {
   }
 }
 
-export class StationController extends WFNodeController<Station> {
+export class StationPresenter extends NodePresenter<Station> {
   getStationLabel(): Renderable {
     return new Konva.Text({
       text: this.node.name,
