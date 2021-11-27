@@ -14,11 +14,13 @@ export interface NetworkFeature<T extends FeatureType = FeatureType> {
   readonly type: T;
 }
 
-export interface WFNode extends NetworkFeature {
+export interface WFNode<T extends FeatureType> extends NetworkFeature<T> {
   position: Vector2Expression;
 }
 
-export interface Station extends WFNode {
+export interface GeometryNode extends WFNode<FeatureType.GeometryNode> {}
+
+export interface Station extends WFNode<FeatureType.Station> {
   type: FeatureType.Station;
   name: string;
 }
@@ -27,10 +29,10 @@ export enum Mode {
   Metro = 'metro',
 }
 
-export interface Segment extends NetworkFeature {
+export interface Segment extends NetworkFeature<FeatureType.Segment> {
   type: FeatureType.Segment;
   mode: Mode;
-  nodes: WFNode[];
+  nodes: WFNode<any>[];
 }
 
 export enum ServiceType {
@@ -38,30 +40,30 @@ export enum ServiceType {
   Limited = 'limited'
 }
 
-export interface Service extends NetworkFeature {
+export interface Service extends NetworkFeature<FeatureType.Service> {
   type: FeatureType.Service;
   segments: Segment[];
   serviceType: ServiceType;
 }
 
-export interface Line extends NetworkFeature {
+export interface Line extends NetworkFeature<FeatureType.Line> {
   type: FeatureType.Line;
   name: string;
   color: string;
   services: Service[];
 }
 
-export interface System extends NetworkFeature {
+export interface System extends NetworkFeature<FeatureType.System> {
   type: FeatureType.System;
   name: string;
-  nodes: WFNode[];
+  nodes: WFNode<any>[];
   lines: Line[];
 }
 
-export type NetworkFeatureType = WFNode | Station | Segment | Service | Line | System;
+export type NetworkFeatureType = GeometryNode | Station | Segment | Service | Line | System;
 
 export interface NetworkFeatureByType {
-  [FeatureType.GeometryNode]: WFNode;
+  [FeatureType.GeometryNode]: GeometryNode;
   [FeatureType.Station]: Station;
   [FeatureType.Segment]: Segment;
   [FeatureType.Service]: Service;

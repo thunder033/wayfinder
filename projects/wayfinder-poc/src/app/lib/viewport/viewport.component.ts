@@ -106,6 +106,4 @@ export class ViewportComponent {
   render() {
     this.stage$.subscribe((stage) => stage.draw());
   }
-
-
 }

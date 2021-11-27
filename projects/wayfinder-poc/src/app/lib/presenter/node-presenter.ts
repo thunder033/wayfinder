@@ -1,4 +1,4 @@
-import { FeatureType, Line, Station, WFNode } from '@wf-core/types/network-features';
+import { FeatureType, Line, NetworkFeatureByType, Station, WFNode } from '@wf-core/types/network-features';
 import { Renderable } from '../viewport/viewport.types';
 import Konva from 'konva';
 import { add, getSegments, toDeg } from '../viewport/viewport-utils';
@@ -23,18 +23,22 @@ interface RenderNodeOptions {
   index: number;
 }
 
-export class NodePresenter<T extends WFNode = WFNode> extends FeaturePresenter {
-  private static controllers: {[nodeId: string]: NodePresenter} = {};
-  static create(camera: Camera, node: WFNode, lines: Line[]): NodePresenter {
-    const controller = node.type === FeatureType.Station
-      ? new StationPresenter(camera, node as Station, lines)
+export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['type']> {
+  private static presenter: {[nodeId: string]: NodePresenter<any>} = {};
+  static create<T extends FeatureType>(
+    camera: Camera,
+    node: WFNode<T>,
+    lines: Line[],
+  ): NodePresenter<WFNode<T>> {
+    const presenter = node.type === FeatureType.Station
+      ? new StationPresenter(camera, node as any, lines)
       : new NodePresenter(camera, node, lines);
-    NodePresenter.controllers[node.id] = controller;
-    return controller;
+    NodePresenter.presenter[node.id] = presenter;
+    return presenter as NodePresenter<WFNode<T>>;
   }
 
-  static get(id: string): NodePresenter {
-    return NodePresenter.controllers[id];
+  static get<T extends WFNode<any>>(id: string): NodePresenter<T> {
+    return NodePresenter.presenter[id];
   }
 
   private nodeLines = this.lines.filter((line) => this.hasNode(line));
@@ -45,8 +49,10 @@ export class NodePresenter<T extends WFNode = WFNode> extends FeaturePresenter {
     protected readonly node: T,
     protected readonly lines: Line[],
   ) {
-    super();
+    super(node.id, node.type);
   }
+
+  initialize(node: T): void {}
 
   getLineNodeMarker(lineId: string): Renderable {
     return new Konva.Group();
@@ -84,11 +90,15 @@ export class NodePresenter<T extends WFNode = WFNode> extends FeaturePresenter {
 }
 
 export class StationPresenter extends NodePresenter<Station> {
-  getStationLabel(): Renderable {
-    return new Konva.Text({
+  label: Konva.Text | undefined;
+
+  override initialize(node: Station) {
+    super.initialize(node);
+    this.label = new Konva.Text({
       text: this.node.name,
       ...this.camera.project(this.node.position).asExpression(),
     });
+    this.renderable$$.next(this.label);
   }
 
   override getLineNodeMarker(lineId: string): Renderable {

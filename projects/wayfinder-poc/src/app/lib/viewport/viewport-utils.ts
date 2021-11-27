@@ -14,9 +14,9 @@ export function getSegments(line: Line): Segment[] {
   return line.services.map(({ segments }) => segments).flat();
 }
 
-export function chunkLineNodes(line: Line): WFNode[][] {
+export function chunkLineNodes(line: Line): WFNode<any>[][] {
   return getSegments(line).reduce(
-    (chunks: WFNode[][], segment: Segment) => {
+    (chunks: WFNode<any>[][], segment: Segment) => {
       const head = chunks.pop();
       const chunk = head && segment.nodes[0].id === last(head)?.id
         ? [...head, ...segment.nodes.slice(1)]
@@ -24,7 +24,7 @@ export function chunkLineNodes(line: Line): WFNode[][] {
 
       return [...chunks, chunk];
     },
-    <WFNode[][]>[],
+    <WFNode<any>[][]>[],
   )
 }
 
