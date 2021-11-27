@@ -6,9 +6,10 @@ import { Renderable } from '../viewport/viewport.types';
 import { NodePresenter } from './node-presenter';
 import { LinePresenter } from './line-presenter';
 import { Bind } from 'lodash-decorators';
+import { FeatureType } from '@wf-core/types/network-features';
 
 export class NetworkPresenter {
-  private presenters: {[featureId: string]: FeaturePresenter<any> } = {};
+  private presenters: {[featureId: string]: FeaturePresenter<FeatureType> } = {};
 
   private renderable$$ = new Subject<Renderable>();
   renderable$ = this.renderable$$.asObservable();

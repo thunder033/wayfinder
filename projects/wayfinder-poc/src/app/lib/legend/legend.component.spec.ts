@@ -10,7 +10,7 @@ describe('LegendComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ LegendComponent ]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

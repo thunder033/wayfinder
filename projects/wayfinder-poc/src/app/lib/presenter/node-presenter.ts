@@ -8,14 +8,14 @@ import { FeaturePresenter } from './feature-presenter';
 
 const NODE_STYLE: Partial<Konva.CircleConfig> = {
   radius: 4,
-}
+};
 
 const STATION_MARKER_STYLE: Partial<Konva.CircleConfig> = {
   ...NODE_STYLE,
   fill: '#fff',
   stroke: '#333',
   strokeWidth: 1,
-}
+};
 
 interface RenderNodeOptions {
   lineId: string;
@@ -64,7 +64,7 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
     const radius = NODE_STYLE.radius!;
     const offset = ((-this.nodeLines.length + index) * radius * 2) + radius;
     return origin
-      .add({ x: offset * Math.sin(orientation), y: offset * Math.cos(orientation) })
+      .add({ x: offset * Math.sin(orientation), y: offset * Math.cos(orientation) });
   }
 
   private hasNode(line: Line) {
@@ -81,7 +81,7 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
       const angleLeft = !leftNode ? NaN : Vector2.angleTo(leftNode.position, this.node.position);
       const angleRight = !rightNode ? NaN : Vector2.angleTo(this.node.position, rightNode.position);
       const angles = [angleLeft, angleRight].filter(Number.isFinite);
-      console.log(`${line.name} ${this.node.id}`, [angleLeft, angleRight].map(toDeg))
+      console.log(`${line.name} ${this.node.id}`, [angleLeft, angleRight].map(toDeg));
       const orientation = angles.reduce(add, 0) / angles.length;
 
       return { lineId: line.id, index, orientation };

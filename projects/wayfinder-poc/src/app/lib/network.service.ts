@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Network } from '../../../../wayfinder-core/types/network';
+import { Network } from '@wf-core/types/network';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NetworkService {
 
-  network$: Observable<Network> = of(null as Network);
+  network$: Observable<Network> = of(null as any);
 
   constructor() { }
 }

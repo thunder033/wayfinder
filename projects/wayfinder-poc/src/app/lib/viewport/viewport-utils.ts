@@ -25,7 +25,7 @@ export function chunkLineNodes(line: Line): WFNode<any>[][] {
       return [...chunks, chunk];
     },
     <WFNode<any>[][]>[],
-  )
+  );
 }
 
 export function asLinePoints(chunk: Vector2.Expression[]): number[] {

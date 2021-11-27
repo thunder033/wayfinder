@@ -7,7 +7,7 @@ export function getBoundingBox(points: Vector2.Expression[]): BoundingBox {
     minY: Number.POSITIVE_INFINITY,
     maxX: Number.NEGATIVE_INFINITY,
     maxY: Number.NEGATIVE_INFINITY,
-  }
+  };
 
   return points.reduce((box, point) => ({
     minX: Math.min(box.minX, point.x),

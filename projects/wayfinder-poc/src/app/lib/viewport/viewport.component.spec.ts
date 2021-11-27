@@ -10,7 +10,7 @@ describe('ViewportComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ViewportComponent ]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

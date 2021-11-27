@@ -10,7 +10,5 @@ export class LegendComponent implements OnInit {
 
   constructor(public systemService: SystemService) {}
 
-  ngOnInit(): void {
-  }
-
+  ngOnInit(): void {}
 }

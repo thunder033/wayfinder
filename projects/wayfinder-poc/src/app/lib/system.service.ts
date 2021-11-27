@@ -42,7 +42,7 @@ const station4 = createFeature(FeatureType.Station, {
 
 const geometryNode1 = createFeature(FeatureType.GeometryNode, {
   position: { x: 3, y: 2 },
-})
+});
 
 const segment1 = createFeature(FeatureType.Segment, {
   mode: Mode.Metro,
@@ -52,7 +52,7 @@ const segment1 = createFeature(FeatureType.Segment, {
 const segment2 = createFeature(FeatureType.Segment, {
   mode: Mode.Metro,
   nodes: [station4, station2, geometryNode1, station3],
-})
+});
 
 const service1 = createFeature(FeatureType.Service, {
   segments: [segment1],

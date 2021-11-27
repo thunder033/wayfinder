@@ -18,6 +18,7 @@ export interface WFNode<T extends FeatureType> extends NetworkFeature<T> {
   position: Vector2Expression;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface GeometryNode extends WFNode<FeatureType.GeometryNode> {}
 
 export interface Station extends WFNode<FeatureType.Station> {

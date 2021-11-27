@@ -53,7 +53,7 @@ function getSystemCenter(system: System): Vector2 {
 export class ViewportComponent {
   renderTarget$ = new ReplaySubject<HTMLElement>(1);
   @ViewChild('viewport')
-  private set renderTarget(ref: ElementRef) { this.renderTarget$.next(ref.nativeElement); };
+  private set renderTarget(ref: ElementRef) { this.renderTarget$.next(ref.nativeElement); }
 
   stage$ = this.renderTarget$.pipe(
     map((target) => new Konva.Stage({
@@ -100,7 +100,7 @@ export class ViewportComponent {
           networkPresenter.present(camera);
           this.render();
         },
-      })
+      });
   }
 
   render() {

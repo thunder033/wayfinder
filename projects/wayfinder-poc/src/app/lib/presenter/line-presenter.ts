@@ -3,7 +3,6 @@ import Konva from 'konva';
 import { FeatureType, Line } from '@wf-core/types/network-features';
 
 import { FeaturePresenter } from './feature-presenter';
-import { Camera } from '../viewport/camera';
 import { Renderable } from '../viewport/viewport.types';
 import { asLinePoints, chunkLineNodes } from '../viewport/viewport-utils';
 import { NodePresenter } from './node-presenter';
@@ -11,7 +10,7 @@ import { NodePresenter } from './node-presenter';
 const LINE_STYLE: Partial<Konva.LineConfig> = {
   stroke: '#000',
   strokeWidth: 8,
-}
+};
 
 export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
   private lineChunks: Konva.Line[] = [];

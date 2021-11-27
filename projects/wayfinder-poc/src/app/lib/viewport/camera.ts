@@ -14,7 +14,7 @@ export class Camera {
   ready$ = combineLatest([
     this.imageSizePx.$.pipe(filter(Vector2.Rx.isSet)),
     this.imageOriginPx.$.pipe(filter(Vector2.Rx.isSet)),
-  ])
+  ]);
 
   constructor(private stage: Konva.Stage) {
     this.imageSizePx.$.pipe(filter(Vector2.Rx.isSet)).subscribe((imageSize) =>
@@ -36,6 +36,6 @@ export class Camera {
   imageScale: ${this.imageScale}
   imageSizePx: ${this.imageSizePx}
   imageOriginPx: ${this.imageOriginPx}
-    }`
+    }`;
   }
 }

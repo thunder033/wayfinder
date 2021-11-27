@@ -1,11 +1,11 @@
 import { Vector2Expression } from './geometry';
 import { NetworkFeature } from './network-features';
 
-export interface NetworkFeatureChange<T = any> {
+export interface NetworkFeatureChange<T = object> {
   featureId: string;
   path: ObjectPathNormalize<T>;
-  left: any;
-  right: any;
+  left: object;
+  right: object;
 }
 
 export interface Alteration {

@@ -104,7 +104,7 @@ class RxVector2 extends Vector2 {
     return !Number.isNaN(v.x) && !Number.isNaN(v.y);
   }
 
-  constructor(x: number = NaN, y: number = NaN) {
+  constructor(x = NaN, y = NaN) {
     super(x, y);
   }
 
