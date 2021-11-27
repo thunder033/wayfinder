@@ -1,4 +1,4 @@
-import { FeatureType, Line, NetworkFeatureByType, Station, WFNode } from '@wf-core/types/network-features';
+import { FeatureType, Line, Station, WFNode } from '@wf-core/types/network-features';
 import { Renderable } from '../viewport/viewport.types';
 import Konva from 'konva';
 import { add, getSegments, toDeg } from '../viewport/viewport-utils';

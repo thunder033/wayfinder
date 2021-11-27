@@ -1,12 +1,19 @@
 import { Injectable } from '@angular/core';
 import {
+  Dehydrated,
   FeatureType,
   Mode,
   NetworkFeature,
   NetworkFeatureByType,
   ServiceType,
-} from '../../../../wayfinder-core/types/network-features';
+  WFNode,
+  WFNodeType,
+} from '@wf-core/types/network-features';
 import { of } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { NetworkState, WFState } from '@wf-core/types/store';
+import { isArray } from 'lodash';
+import { network } from '@wf-core/state/network.reducer';
 
 let id = 0;
 function createFeature<F extends FeatureType, T extends NetworkFeature = NetworkFeatureByType[F]>(
@@ -82,6 +89,28 @@ const system1 = createFeature(FeatureType.System, {
   lines: [line2, line1],
 });
 
+function isNetworkFeature<T extends FeatureType>(input: any, type?: T): input is NetworkFeature<T> {
+  return 'id' in input
+    && Object.values(FeatureType).includes(input?.type)
+    && (!type || input.type === type);
+}
+
+function dehydrate<T extends NetworkFeature>(feature: T): Dehydrated<T> {
+  return Object.entries(feature).reduce((out, [key, value]) => ({
+    ...out,
+    [key]: isArray(value)
+      ? value.map((item) => isNetworkFeature(item) ? item.id : item)
+      : isNetworkFeature(value) ? value.id : value,
+  }), {} as any);
+}
+
+function toMap<T extends NetworkFeature>(...input: T[]): {[id: string]: Dehydrated<T>} {
+  return input.reduce(
+    (out, feature) => ({ ...out, [feature.id]: dehydrate(feature) }),
+    {},
+  );
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -89,5 +118,15 @@ export class SystemService {
 
   system$ = of(system1);
 
-  constructor() { }
+  constructor(store$: Store<WFState>) {
+    const state: NetworkState = {
+      node: toMap<WFNode<WFNodeType>>(station1, station2, station3, station4, geometryNode1),
+      segment: toMap(segment1, segment2),
+      service: toMap(service1, service2),
+      line: toMap(line1, line2),
+      system: toMap(system1),
+    };
+
+    store$.dispatch(network.restore({ state }));
+  }
 }

@@ -26,6 +26,8 @@ export interface Station extends WFNode<FeatureType.Station> {
   name: string;
 }
 
+export type WFNodeType = FeatureType.Station | FeatureType.GeometryNode;
+
 export enum Mode {
   Metro = 'metro',
 }
@@ -62,6 +64,16 @@ export interface System extends NetworkFeature<FeatureType.System> {
 }
 
 export type NetworkFeatureType = GeometryNode | Station | Segment | Service | Line | System;
+
+export type Dehydrated<T extends NetworkFeature> = {
+  [K in keyof T]: T[K] extends Array<infer U>
+    ? U extends NetworkFeature
+      ? string[]
+      : U[]
+    : T[K] extends NetworkFeature
+      ? string
+      : T[K]
+}
 
 export interface NetworkFeatureByType {
   [FeatureType.GeometryNode]: GeometryNode;

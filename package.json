@@ -18,6 +18,7 @@
     "@angular/platform-browser": "~13.0.0",
     "@angular/platform-browser-dynamic": "~13.0.0",
     "@angular/router": "~13.0.0",
+    "@ngrx/store": "^13.0.1",
     "@types/lodash": "^4.14.177",
     "konva": "^8.3.0",
     "lodash": "^4.17.21",
