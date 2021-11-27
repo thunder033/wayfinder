@@ -28,9 +28,11 @@ export class NetworkPresenter {
         this.presenters[line.id] = presenter;
       });
 
-      system.nodes.forEach(({id}) => {
-        const presenter = NodePresenter.get(id);
+      system.nodes.forEach((node) => {
+        const presenter = NodePresenter.get(node.id);
         presenter.renderable$.subscribe(this.pushRenderable);
+        presenter.initialize(node);
+        this.presenters[node.id] = presenter;
       });
     });
   }
