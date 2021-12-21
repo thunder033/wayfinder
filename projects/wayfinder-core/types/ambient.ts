@@ -9,6 +9,8 @@ declare global {
       : T extends object
         ? Required<T>
         : never
+
+  type Inventory<T> = {[id: string]: T};
 }
 
 export {};

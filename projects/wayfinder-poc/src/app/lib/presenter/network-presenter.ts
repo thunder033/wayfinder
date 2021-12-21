@@ -7,6 +7,8 @@ import { NodePresenter } from './node-presenter';
 import { LinePresenter } from './line-presenter';
 import { Bind } from 'lodash-decorators';
 import { FeatureType } from '@wf-core/types/network-features';
+import { Store } from '@ngrx/store';
+import { WFState } from '@wf-core/types/store';
 
 export class NetworkPresenter {
   private presenters: {[featureId: string]: FeaturePresenter<FeatureType> } = {};
@@ -15,17 +17,18 @@ export class NetworkPresenter {
   renderable$ = this.renderable$$.asObservable();
 
   constructor(
-    private systemService: SystemService
+    private systemService: SystemService,
+    private store: Store<WFState>,
   ) {}
 
   present(camera: Camera): void {
     this.systemService.system$.subscribe((system) => {
-      system.nodes.forEach((node) => NodePresenter.create(camera, node, system.lines));
+      system.nodes.forEach((node) => NodePresenter.create(camera, node, system.lines, system.id, this.store));
 
       system.lines.forEach((line) => {
-        const presenter = new LinePresenter(line.id, line.type);
+        const presenter = new LinePresenter(line.id, line.type, this.store);
         presenter.renderable$.subscribe(this.pushRenderable);
-        presenter.initialize(line);
+        presenter.initialize();
         this.presenters[line.id] = presenter;
       });
 

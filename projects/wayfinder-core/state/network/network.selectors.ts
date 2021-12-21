@@ -1,5 +1,14 @@
 import { NetworkState, WFState } from '../../types/store';
-import { Dehydrated, FeatureType, Line, NetworkFeature, Segment, Service, System } from '../../types/network-features';
+import {
+  Dehydrated,
+  FeatureType,
+  Line,
+  NetworkFeature,
+  NetworkFeatureByType,
+  Segment,
+  Service,
+  System
+} from '../../types/network-features';
 import { asNetworkFeature } from '../../utils/network-feature.utils';
 import { createSelector } from '@ngrx/store';
 
@@ -50,7 +59,24 @@ const getSystem = (id: string) =>
     (state) => getHydratedFeature(state, state.system[id]),
   );
 
+const FEATURE_PATH: {[type in FeatureType]: keyof NetworkState } = {
+  [FeatureType.GeometryNode]: 'node',
+  [FeatureType.Station]: 'node',
+  [FeatureType.Segment]: 'segment',
+  [FeatureType.Service]: 'service',
+  [FeatureType.Line]: 'line',
+  [FeatureType.System]: 'system',
+};
+
+const getFeature = <T extends FeatureType>(id: string, type: T) =>
+  createSelector(
+    getNetwork,
+    (state) =>
+      <NetworkFeatureByType[T]>getHydratedFeature<NetworkFeature>(state, state[FEATURE_PATH[type]][id]),
+  );
+
 export const networkSelectors = {
   getNetwork,
   getSystem,
+  getFeature,
 };

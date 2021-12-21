@@ -19,6 +19,8 @@ import { Camera } from './camera';
 import { Vector2 } from '@wf-core/math';
 import { getBoundingBox } from '@wf-core/utils/geomety';
 import { NetworkPresenter } from '../presenter/network-presenter';
+import { Store } from '@ngrx/store';
+import { WFState } from '@wf-core/types/store';
 
 // AlterationService
 // - alteration$
@@ -71,7 +73,7 @@ export class ViewportComponent {
 
   onResize$ = fromEvent(window, 'resize').pipe(debounceTime(250), share());
 
-  constructor(private systemService: SystemService) {
+  constructor(private systemService: SystemService, private store: Store<WFState>,) {
     this.onResize$
       .pipe(startWith(null), withSampleFrom(this.camera$, this.renderTarget$))
       .subscribe(([, camera, renderTarget]) => {
@@ -95,10 +97,12 @@ export class ViewportComponent {
           const layer = new Konva.Layer();
           stage.add(layer);
 
-          const networkPresenter = new NetworkPresenter(this.systemService);
+          const networkPresenter = new NetworkPresenter(this.systemService, this.store);
           networkPresenter.renderable$.subscribe((renderable) => layer.add(renderable));
           networkPresenter.present(camera);
           this.render();
+
+          setInterval(() => this.render(), 5000);
         },
       });
   }

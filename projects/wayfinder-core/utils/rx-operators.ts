@@ -6,7 +6,8 @@ import {
   ObservableInputTuple,
   of,
   OperatorFunction,
-  shareReplay, switchMap,
+  shareReplay,
+  switchMap,
   take,
   tap
 } from 'rxjs';

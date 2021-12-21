@@ -1,35 +1,99 @@
 import Konva from 'konva';
 
-import { FeatureType, Line } from '@wf-core/types/network-features';
+import { FeatureType, Line, Segment, WFNode, WFNodeType } from '@wf-core/types/network-features';
 
 import { FeaturePresenter } from './feature-presenter';
 import { Renderable } from '../viewport/viewport.types';
-import { asLinePoints, chunkLineNodes } from '../viewport/viewport-utils';
+import { asLinePoints, chunkLineNodes, getSegments, LineNodeChunk } from '../viewport/viewport-utils';
 import { NodePresenter } from './node-presenter';
+import { combineLatest, map, Observable, scan, switchMap } from 'rxjs';
+import { cacheValue, withSampleFrom } from '@wf-core/utils/rx-operators';
+import { Vector2 } from '@wf-core/math';
 
 const LINE_STYLE: Partial<Konva.LineConfig> = {
   stroke: '#000',
   strokeWidth: 8,
 };
 
+type KLineInventory = { [signature: string]: Konva.Line };
+type NodeInventory = { [nodeId: string]: WFNode<WFNodeType> };
+
+function getNodes(line: Line): NodeInventory {
+  return getSegments(line)
+    .map((segment: Segment) => segment.nodes)
+    .flat()
+    .reduce((out, node) => ({ ...out, [node.id]: node }), {});
+}
+
 export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
-  private lineChunks: Konva.Line[] = [];
-  private nodeMarkers: Renderable[] = [];
+  private line$ = this.feature$;
+  private vertexChunks$ = this.line$.pipe(map(chunkLineNodes), logOut(this.featureId + ' chunks'), cacheValue());
+  private kLines$: Observable<KLineInventory> = combineLatest([this.line$, this.vertexChunks$]).pipe(
+    scan((kLines, [line, chunks]) =>
+      this.updateRenderableInventory(
+        kLines,
+        chunks,
+        (chunk: LineNodeChunk) => chunk.signature,
+        () => new Konva.Line({...LINE_STYLE, stroke: line.color}),
+      ), {} as KLineInventory),
+    logOut(this.featureId + ' kLines'),
+    cacheValue(),
+  );
 
-  initialize(line: Line): void {
-    this.lineChunks = chunkLineNodes(line).map((chunk) =>
-      new Konva.Line({
-        points: asLinePoints(chunk.map((node) => NodePresenter.get(node.id).getRenderNodePosition(line.id))),
-        ...LINE_STYLE,
-        stroke: line.color,
-      })
-    );
+  private nodes$ = this.line$.pipe(map(getNodes), cacheValue());
 
-    this.nodeMarkers = line.services
-      .map(({ segments }) => segments.map(({ nodes }) => nodes))
-      .flat(2)
-      .map((node) => NodePresenter.get(node.id).getLineNodeMarker(line.id));
+  private vertices$: Observable<{ [nodeId: string]: Vector2 }> = this.nodes$.pipe(
+    logOut(this.featureId + ' nodes'),
+    switchMap((inventory) =>
+      combineLatest(
+        Object.keys(inventory).reduce((out, nodeId) => ({
+          ...out,
+          [nodeId]: NodePresenter.get(nodeId).getLineVertexPosition$(this.featureId),
+        }), {}),
+      ),
+    ),
+    logOut(this.featureId + ' vertices'),
+    cacheValue(),
+  );
 
-    [...this.lineChunks, ...this.nodeMarkers].forEach((renderable) => this.renderable$$.next(renderable));
+  private nodeMarkers$ = this.nodes$.pipe(
+    scan((nodeMarkers, nodes) =>
+      this.updateRenderableInventory(
+        nodeMarkers,
+        Object.values(nodes),
+        (node) => node.id,
+        (node) => NodePresenter.get(node.id).getLineNodeMarker(this.featureId),
+      ),
+      {} as Inventory<Renderable>
+    ),
+    cacheValue(),
+  );
+
+  initialize(): void {
+    this.kLines$
+      .pipe(withSampleFrom(this.vertexChunks$, this.vertices$))
+      .subscribe({
+        error: (thrown) => console.error(thrown),
+        next: ([kLines, chunks, vertices]) => {
+          console.log(`${this.featureType} ${this.featureId}`, vertices);
+          chunks
+            .filter(({ signature }) => !!kLines[signature])
+            .forEach((chunk) => {
+              kLines[chunk.signature].points(asLinePoints(chunk.nodes.map((node) => vertices[node.id])));
+            });
+        },
+      });
+
+    this.nodeMarkers$
+      .pipe(withSampleFrom(this.vertices$))
+      .subscribe({
+        error: (thrown) => console.error(thrown),
+        next: ([nodeMarkers, vertices]) => {
+          Object.entries(nodeMarkers).forEach(([id, marker]) => {
+            marker.x(vertices[id].x);
+            marker.y(vertices[id].y);
+          });
+        }
+      });
   }
 }

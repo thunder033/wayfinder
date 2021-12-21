@@ -1,4 +1,4 @@
-import { Line, Segment, WFNode } from '@wf-core/types/network-features';
+import { Line, Segment, WFNode, WFNodeType } from '@wf-core/types/network-features';
 import { last } from 'lodash';
 import { Vector2 } from '@wf-core/math';
 
@@ -14,17 +14,27 @@ export function getSegments(line: Line): Segment[] {
   return line.services.map(({ segments }) => segments).flat();
 }
 
-export function chunkLineNodes(line: Line): WFNode<any>[][] {
+export interface LineNodeChunk {
+  signature: string;
+  nodes: WFNode<WFNodeType>[];
+}
+
+function getChunkSignature(nodes: WFNode<WFNodeType>[]): string {
+  return nodes.map(({ id }) => id).join('::');
+}
+
+export function chunkLineNodes(line: Line): LineNodeChunk[] {
   return getSegments(line).reduce(
-    (chunks: WFNode<any>[][], segment: Segment) => {
+    (chunks: LineNodeChunk[], segment: Segment) => {
       const head = chunks.pop();
-      const chunk = head && segment.nodes[0].id === last(head)?.id
-        ? [...head, ...segment.nodes.slice(1)]
+      const nodes = head && segment.nodes[0].id === last(head.nodes)?.id
+        ? [...head.nodes, ...segment.nodes.slice(1)]
         : [...segment.nodes];
+      const chunk = { signature: getChunkSignature(nodes), nodes };
 
       return [...chunks, chunk];
     },
-    <WFNode<any>[][]>[],
+    <LineNodeChunk[]>[],
   );
 }
 
