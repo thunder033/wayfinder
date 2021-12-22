@@ -9,6 +9,14 @@ export class Vector2 implements Vector2Expression {
     return Math.atan2(b.y - a.y, b.x - a.x);
   }
 
+  static dot(a: Vector2Expression, b: Vector2Expression): number {
+    return a.x * b.x + a.y * b.y;
+  }
+
+  static project(a: Vector2, b: Vector2): Vector2 {
+    return a.clone().scale(Vector2.dot(a, b) / a.magnitude());
+  }
+
   static from(expression: Vector2Expression): Vector2 {
     return new Vector2(expression.x, expression.y);
   }
@@ -32,6 +40,11 @@ export class Vector2 implements Vector2Expression {
 
   set({ x = this.x, y = this.y }: Vector2Expression): this {
     Object.assign(this.buffer, [x, y]);
+    return this;
+  }
+
+  tap(label: string): this {
+    console.log(label + ' ' + this.toString());
     return this;
   }
 
@@ -82,8 +95,8 @@ export class Vector2 implements Vector2Expression {
 
   scale(scalar: number): this {
     return this.set({
-      x: this.x + scalar,
-      y: this.y + scalar,
+      x: this.x * scalar,
+      y: this.y * scalar,
     });
   }
 
@@ -92,6 +105,14 @@ export class Vector2 implements Vector2Expression {
       x: this.x / scalar,
       y: this.y / scalar,
     });
+  }
+
+  magnitude(): number {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  normal() {
+    return this.divideScalar(this.magnitude());
   }
 }
 

@@ -21,11 +21,7 @@ function createFeature<F extends FeatureType, T extends NetworkFeature = Network
   type: F,
   properties: Omit<T, 'id' | 'type'>
 ): T {
-  return {
-    id: `feature-${id++}`,
-    type,
-    ...properties,
-  } as T;
+  return { id: `feature-${id++}`, type, ...properties } as T;
 }
 
 const station1 = createFeature(FeatureType.Station, {
