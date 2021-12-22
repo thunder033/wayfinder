@@ -110,7 +110,8 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
         const lineTray = markerTrays.find((tray) => tray.lineIds.includes(lineId))!;
         const trayOffset = getTrayOffset(lineTray.angle, markerTrays);
         const radius = NODE_STYLE.radius!;
-        const markerOffset = (-lineTray.lineIds.length / 2 + lineTray.lineIds.indexOf(lineId)) * radius * 2 + radius;
+        const offsetSign = lineTray.angle < 0 ? 1 : -1;
+        const markerOffset = offsetSign * (-lineTray.lineIds.length / 2 + lineTray.lineIds.indexOf(lineId)) * radius * 2 + radius;
         const u = new Vector2(-Math.sin(lineTray.angle), Math.cos(lineTray.angle));
         return this.camera.project(node.position)
           .add(u.scale(markerOffset).multiply({ x: 1, y: - 1}));
@@ -166,7 +167,7 @@ export class StationPresenter extends NodePresenter<Station> {
   override initialize(node: Station) {
     super.initialize(node);
     this.label = new Konva.Text({
-      text: this.node.name + ' ' + this.node.id,
+      text: this.node.name + ' (' + this.node.id + ')',
       ...this.camera.project(this.node.position).asExpression(),
     });
     this.renderable$$.next(this.label);

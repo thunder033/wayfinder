@@ -27,20 +27,19 @@ import { WFState } from '@wf-core/types/store';
 // - displayAlteration(id: string);
 // - incrementAlteration();
 // - decrementAlteration();
-// abstract FeaturePresenter<T>
-// - renderable$: Observable<Renderable>
-// - featureId
-// - featureType
-// - teardown();
-// > NodePresenter
-// > StationPresenter
-// > LinePresenter
-// > SystemPresenter
+
 // NetworkPresenter
 // - presenters
 // - addFeature
 // - removeFeature
 // - updateFeature
+
+// marker tray - one for each prevailing angle
+// - prevailing angle
+// - size = # of lines
+// - positioning
+//   - project 180 deg from prevailing angle
+//   - calculated distance by summing projected length of all other trays
 
 function getSystemCenter(system: System): Vector2 {
   const { minX, minY, maxX, maxY } = getBoundingBox(_map(system.nodes, 'position'));
