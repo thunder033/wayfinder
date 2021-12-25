@@ -110,8 +110,12 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
         const lineTray = markerTrays.find((tray) => tray.lineIds.includes(lineId))!;
         const trayOffset = getTrayOffset(lineTray.angle, markerTrays);
         const radius = NODE_STYLE.radius!;
-        const offsetSign = lineTray.angle < 0 ? -1 : 1;
-        const markerOffset = offsetSign * (-lineTray.lineIds.length / 2 + lineTray.lineIds.indexOf(lineId)) * radius * 2 + radius;
+
+        const sign = lineTray.angle < 0 ? -1 : 1;
+        const markerCount = lineTray.lineIds.length;
+        const markerIndex = lineTray.lineIds.indexOf(lineId);
+        const markerOffset = sign * (markerIndex * radius * 2 + radius - markerCount * radius * 2);
+
         const u = new Vector2(-Math.sin(lineTray.angle), Math.cos(lineTray.angle));
         return this.camera.project(node.position)
           .add(u.scale(markerOffset).multiply({ x: 1, y: - 1}));
