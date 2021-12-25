@@ -4,9 +4,9 @@ import { Dehydrated, FeatureType, NetworkFeature } from './network-features';
 export interface NetworkFeatureChange<T extends Dehydrated<NetworkFeature> = any> {
   featureId: string;
   featureType: FeatureType;
-  path: string[];
-  left: object;
-  right: object;
+  path: (string | number)[];
+  left: any;
+  right: any;
 }
 
 export interface Alteration {

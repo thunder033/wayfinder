@@ -73,7 +73,7 @@ export class ViewportComponent {
 
   onResize$ = fromEvent(window, 'resize').pipe(debounceTime(250), share());
 
-  constructor(private systemService: SystemService, private store: Store<WFState>,) {
+  constructor(public systemService: SystemService, private store: Store<WFState>,) {
     this.onResize$
       .pipe(startWith(null), withSampleFrom(this.camera$, this.renderTarget$))
       .subscribe(([, camera, renderTarget]) => {

@@ -2,7 +2,7 @@ import { createAction, createReducer, on, props } from '@ngrx/store';
 import { NetworkFeatureState, NetworkState } from '../../types/store';
 import { Alteration, NetworkFeatureChange } from '../../types/network';
 import { FeatureType, NetworkFeature } from '../../types/network-features';
-import { omit, set } from 'lodash';
+import { omit, set, cloneDeep } from 'lodash';
 
 export const networkDefaultState: NetworkState = {
   alterationStack: [],
@@ -63,7 +63,7 @@ function applyChanges(state: NetworkState, changes: NetworkFeatureChange[]): Net
       [key]: {
         ...out[key],
         [feature.id]: {
-          ...set(feature, change.path, change.right),
+          ...set(cloneDeep(feature), change.path, change.right),
         }
       }
     });

@@ -87,6 +87,12 @@ const system1 = createFeature(FeatureType.System, {
   lines: [line2, line1],
 });
 
+const system1a = createFeature(FeatureType.System, {
+  name: 'Test System A',
+  nodes: [station1, station2, station3, geometryNode1],
+  lines: [line1],
+});
+
 function dehydrate<T extends NetworkFeature>(feature: T): Dehydrated<T> {
   return Object.entries(feature).reduce((out, [key, value]) => ({
     ...out,
@@ -107,7 +113,7 @@ function toMap<T extends NetworkFeature>(...input: T[]): {[id: string]: Dehydrat
   providedIn: 'root'
 })
 export class SystemService {
-  system$ = this.store$.pipe(select(network.getSystem(system1.id)), cacheValue());
+  system$ = this.store$.pipe(select(network.getSystem(system1a.id)), cacheValue());
 
   constructor(private store$: Store<WFState>) {
     // const state: NetworkState = {
@@ -146,12 +152,54 @@ export class SystemService {
       changes: [],
     };
 
+    const alteration0: Alteration = {
+      id: 'alteration-1',
+      date: new Date().toISOString(),
+      additions: [
+        station1,
+        station2,
+        station3,
+        geometryNode1,
+        segment1,
+        service1,
+        line1,
+        system1a,
+      ].map(dehydrate),
+      removals: [],
+      changes: [],
+    };
+
+    const alteration1: Alteration = {
+      id: 'alteration-2',
+      date: new Date().toISOString(),
+      additions: [
+        station4,
+        segment2,
+        service2,
+        line2,
+      ].map(dehydrate),
+      removals: [],
+      changes: [{
+        featureId: system1a.id,
+        featureType: FeatureType.System,
+        path: ['nodes', 4],
+        left: undefined,
+        right: station4.id,
+      }, {
+        featureId: system1a.id,
+        featureType: FeatureType.System,
+        path: ['lines', 1],
+        left: undefined,
+        right: line2.id,
+      }],
+    };
+
     const state: RegionState = {
       alterationIndex: 0,
       network: {
         id: 'network-0',
         size: { x: 1, y: 1 },
-        ledger: [alternation],
+        ledger: [alteration0, alteration1],
       }
     };
 
