@@ -6,15 +6,16 @@ import {
   NetworkFeature,
   NetworkFeatureByType,
   ServiceType,
-  WFNode,
-  WFNodeType,
 } from '@wf-core/types/network-features';
 import { select, Store } from '@ngrx/store';
-import { NetworkState, WFState } from '@wf-core/types/store';
+import { RegionState, WFState } from '@wf-core/types/store';
 import { isArray } from 'lodash';
 import { network } from '@wf-core/state/network';
 import { isNetworkFeature } from '@wf-core/utils/network-feature.utils';
 import { cacheValue } from '@wf-core/utils/rx-operators';
+import { region } from '@wf-core/state/region';
+import { Alteration } from '@wf-core/types/network';
+import { filter, take } from 'rxjs';
 
 let id = 0;
 function createFeature<F extends FeatureType, T extends NetworkFeature = NetworkFeatureByType[F]>(
@@ -109,14 +110,60 @@ export class SystemService {
   system$ = this.store$.pipe(select(network.getSystem(system1.id)), cacheValue());
 
   constructor(private store$: Store<WFState>) {
-    const state: NetworkState = {
-      node: toMap<WFNode<WFNodeType>>(station1, station2, station3, station4, geometryNode1),
-      segment: toMap(segment1, segment2),
-      service: toMap(service1, service2),
-      line: toMap(line1, line2),
-      system: toMap(system1),
+    // const state: NetworkState = {
+    //   alterationStack: [],
+    //   node: toMap<WFNode<WFNodeType>>(station1, station2, station3, station4, geometryNode1),
+    //   segment: toMap(segment1, segment2),
+    //   service: toMap(service1, service2),
+    //   line: toMap(line1, line2),
+    //   system: toMap(system1),
+    // };
+    //
+    // store$.dispatch(network.restore({ state }));
+
+    this.restoreRegion();
+    this.applyNextAlteration();
+  }
+
+  private restoreRegion() {
+    const nodes = [station1, station2, station3, station4, geometryNode1];
+    const segments = [segment1, segment2];
+    const services = [service1, service2];
+    const lines = [line1, line2];
+    const systems = [system1];
+
+    const alternation: Alteration = {
+      id: 'alteration-0',
+      date: new Date().toISOString(),
+      additions: [
+        ...nodes,
+        ...segments,
+        ...services,
+        ...lines,
+        ...systems,
+      ].map(dehydrate),
+      removals: [],
+      changes: [],
     };
 
-    store$.dispatch(network.restore({ state }));
+    const state: RegionState = {
+      alterationIndex: 0,
+      network: {
+        id: 'network-0',
+        size: { x: 1, y: 1 },
+        ledger: [alternation],
+      }
+    };
+
+    this.store$.dispatch(region.restore({ state }));
+  }
+
+  applyNextAlteration() {
+    this.store$
+      .pipe(select(region.getNextAlteration), take(1), logOut('alteration'), filter(Boolean))
+      .subscribe({
+        error: (thrown) => console.error(thrown),
+        next: (alteration) => this.store$.dispatch(network.applyAlteration(alteration))
+      });
   }
 }

@@ -1,4 +1,4 @@
-import { NetworkState, WFState } from '../../types/store';
+import { NetworkFeatureState, NetworkState, WFState } from '../../types/store';
 import {
   Dehydrated,
   FeatureType,
@@ -11,6 +11,7 @@ import {
 } from '../../types/network-features';
 import { asNetworkFeature } from '../../utils/network-feature.utils';
 import { createSelector } from '@ngrx/store';
+import { getSegments } from '../../../wayfinder-poc/src/app/lib/viewport/viewport-utils';
 
 const getNetwork = (state: WFState) => state.network;
 
@@ -19,7 +20,7 @@ function asDehydrated<T extends NetworkFeature>(input: any): Dehydrated<T> {
 }
 
 function getHydratedFeature<T extends NetworkFeature>(state: NetworkState, input: Dehydrated<T>): T {
-  switch (input.type) {
+  switch (input?.type) {
     case FeatureType.Segment:
       return {
         ...input,
@@ -59,7 +60,9 @@ const getSystem = (id: string) =>
     (state) => getHydratedFeature(state, state.system[id]),
   );
 
-const FEATURE_PATH: {[type in FeatureType]: keyof NetworkState } = {
+const peekAlterationStack = createSelector(getNetwork, ({ alterationStack }) => alterationStack?.[alterationStack.length - 1]);
+
+const FEATURE_PATH: {[type in FeatureType]: keyof NetworkFeatureState } = {
   [FeatureType.GeometryNode]: 'node',
   [FeatureType.Station]: 'node',
   [FeatureType.Segment]: 'segment',
@@ -75,8 +78,19 @@ const getFeature = <T extends FeatureType>(id: string, type: T) =>
       <NetworkFeatureByType[T]>getHydratedFeature<NetworkFeature>(state, state[FEATURE_PATH[type]][id]),
   );
 
+const getSegmentLines = (systemId: string, segmentId: string) =>
+  createSelector(
+    getFeature(systemId, FeatureType.System),
+    (system: System) =>
+      system.lines
+        .map(getSegments)
+        .filter((segments) => segments.some(({ id }) => id === segmentId)),
+  );
+
 export const networkSelectors = {
   getNetwork,
   getSystem,
   getFeature,
+  getSegmentLines,
+  peekAlterationStack,
 };

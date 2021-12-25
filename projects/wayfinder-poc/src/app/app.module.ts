@@ -8,6 +8,7 @@ import { ViewportComponent } from './lib/viewport/viewport.component';
 import { LegendComponent } from './lib/legend/legend.component';
 import { StoreModule } from '@ngrx/store';
 import { network } from '@wf-core/state/network';
+import { region } from '@wf-core/state/region';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,10 @@ import { network } from '@wf-core/state/network';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    StoreModule.forRoot({ network: network.reducer }),
+    StoreModule.forRoot({
+      network: network.reducer,
+      region: region.reducer,
+    }),
   ],
   providers: [SystemService],
   bootstrap: [AppComponent]

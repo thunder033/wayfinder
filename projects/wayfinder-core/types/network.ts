@@ -1,9 +1,10 @@
 import { Vector2Expression } from './geometry';
-import { NetworkFeature } from './network-features';
+import { Dehydrated, FeatureType, NetworkFeature } from './network-features';
 
-export interface NetworkFeatureChange<T = object> {
+export interface NetworkFeatureChange<T extends Dehydrated<NetworkFeature> = any> {
   featureId: string;
-  path: ObjectPathNormalize<T>;
+  featureType: FeatureType;
+  path: string[];
   left: object;
   right: object;
 }
@@ -11,8 +12,8 @@ export interface NetworkFeatureChange<T = object> {
 export interface Alteration {
   id: string;
   date: string;
-  additions: NetworkFeature[];
-  removals: NetworkFeature[];
+  additions: Dehydrated<NetworkFeature>[];
+  removals: Dehydrated<NetworkFeature>[];
   changes: NetworkFeatureChange[];
 }
 

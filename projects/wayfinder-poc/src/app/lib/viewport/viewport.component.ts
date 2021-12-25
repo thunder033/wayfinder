@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import {
   debounceTime,
+  filter,
   fromEvent,
   map,
   ReplaySubject,
@@ -87,7 +88,10 @@ export class ViewportComponent {
       });
 
     this.systemService.system$
-      .pipe(withSampleFrom(this.stage$, this.camera$, chainRead(this.camera$, 'ready$')))
+      .pipe(
+        filter(Boolean),
+        withSampleFrom(this.stage$, this.camera$, chainRead(this.camera$, 'ready$'))
+      )
       .subscribe({
         error(thrown) { console.error(thrown); },
         next: ([system, stage, camera]) => {
