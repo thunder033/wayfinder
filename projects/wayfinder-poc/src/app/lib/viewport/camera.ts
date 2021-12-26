@@ -1,6 +1,6 @@
 import { Vector2 } from '@wf-core/math';
 import Konva from 'konva';
-import { combineLatest, filter } from 'rxjs';
+import { combineLatest, filter, mapTo, Observable } from 'rxjs';
 
 export class Camera {
   position = new Vector2.Rx(0, 0);
@@ -11,10 +11,10 @@ export class Camera {
   imageSizePx = new Vector2.Rx();
   imageOriginPx = new Vector2.Rx();
 
-  ready$ = combineLatest([
+  ready$: Observable<Camera> = combineLatest([
     this.imageSizePx.$.pipe(filter(Vector2.Rx.isSet)),
     this.imageOriginPx.$.pipe(filter(Vector2.Rx.isSet)),
-  ]);
+  ]).pipe(mapTo(this));
 
   constructor(private stage: Konva.Stage) {
     this.imageSizePx.$.pipe(filter(Vector2.Rx.isSet)).subscribe((imageSize) =>

@@ -8,7 +8,7 @@ import { FeaturePresenter } from './feature-presenter';
 import { select, Store } from '@ngrx/store';
 import { WFState } from '@wf-core/types/store';
 import { network } from '@wf-core/state/network';
-import { combineLatest, forkJoin, map, Observable, of, switchMap, take } from 'rxjs';
+import { combineLatest, filter, forkJoin, map, Observable, of, switchMap, take } from 'rxjs';
 import { cacheValue } from '@wf-core/utils/rx-operators';
 import { Bind } from 'lodash-decorators';
 
@@ -49,13 +49,12 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
   static create<T extends FeatureType>(
     camera: Camera,
     node: WFNode<T>,
-    lines: Line[],
     systemId: string,
     store: Store<WFState>,
   ): NodePresenter<WFNode<T>> {
     const presenter = node.type === FeatureType.Station
-      ? new StationPresenter(camera, node as any, lines, systemId, store)
-      : new NodePresenter(camera, node, lines, systemId, store);
+      ? new StationPresenter(camera, node as any, systemId, store)
+      : new NodePresenter(camera, node, systemId, store);
     NodePresenter.presenter[node.id] = presenter;
     return presenter as NodePresenter<WFNode<T>>;
   }
@@ -90,7 +89,6 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
   constructor(
     protected readonly camera: Camera,
     protected readonly node: T,
-    protected readonly lines: Line[],
     protected readonly systemId: string,
     store: Store<WFState>,
   ) {
@@ -105,7 +103,8 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
   }
 
   getLineVertexPosition$(lineId: string): Observable<Vector2> {
-    return combineLatest([this.markerTrays$, this.node$]).pipe(
+    return combineLatest([this.markerTrays$, this.node$, this.camera.position.$]).pipe(
+      filter(([markerTrays]) => !!markerTrays.find((tray) => tray.lineIds.includes(lineId))),
       map(([markerTrays, node]) => {
         const lineTray = markerTrays.find((tray) => tray.lineIds.includes(lineId))!;
         const trayOffset = getTrayOffset(lineTray.angle, markerTrays);
@@ -125,8 +124,8 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
 
   @Bind()
   private getPrevailingAngle$(line: Line): Observable<number> {
-    const segment = getSegments(line).find(({ nodes }) => nodes.includes(this.node))!;
-    const nodeIndex = segment.nodes.indexOf(this.node);
+    const segment = getSegments(line).find(({ nodes }) => !!nodes.find(({ id }) => id === this.featureId))!;
+    const nodeIndex = segment.nodes.findIndex(({ id }) => id === this.featureId);
     const leftNode = segment.nodes[nodeIndex - 1];
     const rightNode = segment.nodes[nodeIndex + 1];
 
@@ -148,8 +147,8 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
     return this.nodeLines$.pipe(
       take(1),
       map((nodeLines) => {
-        const sharedLeftNodeLines = nodeLines.filter((nodeLine) => this.hasNode(nodeLine, leftNode));
-        const sharedRightNodeLines = nodeLines.filter((nodeLine) => this.hasNode(nodeLine, rightNode));
+        const sharedLeftNodeLines = nodeLines.filter((nodeLine) => this.hasNode(nodeLine, leftNode.id));
+        const sharedRightNodeLines = nodeLines.filter((nodeLine) => this.hasNode(nodeLine, rightNode.id));
         const sign = <-1 | 0 | 1>Math.sign(sharedLeftNodeLines.length - sharedRightNodeLines.length);
         return ({
           [-1]: angleRight,
@@ -160,8 +159,8 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
     );
   }
 
-  private hasNode(line: Line, node: WFNode<any> = this.node) {
-    return getSegments(line).some((segment) => segment.nodes.includes(node));
+  private hasNode(line: Line, nodeId: string = this.featureId) {
+    return getSegments(line).some(({ nodes }) => !!nodes.find(({ id }) => id === nodeId));
   }
 }
 
@@ -170,11 +169,17 @@ export class StationPresenter extends NodePresenter<Station> {
 
   override initialize(node: Station) {
     super.initialize(node);
-    this.label = new Konva.Text({
-      text: this.node.name + ' (' + this.node.id + ')',
-      ...this.camera.project(this.node.position).asExpression(),
-    });
+    this.label = new Konva.Text({ text: '' });
     this.renderable$$.next(this.label);
+
+    combineLatest([this.node$, this.camera.position.$]).subscribe(([{ position, name }]) => {
+      const { x, y } = this.camera.project(position);
+      this.label?.text(name + ' (' + this.featureId + ')');
+      this.label?.x(x);
+      this.label?.y(y);
+      this.label?.zIndex(10);
+      this.update$$.next();
+    });
   }
 
   override getLineNodeMarker(lineId: string): Renderable {

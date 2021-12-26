@@ -9,6 +9,8 @@ import { cacheValue } from '@wf-core/utils/rx-operators';
 export abstract class FeaturePresenter<T extends FeatureType> {
   protected renderable$$ = new Subject<Renderable>();
   renderable$ = this.renderable$$.asObservable();
+  protected update$$ = new Subject<void>();
+  update$ = this.update$$.asObservable();
 
   protected feature$: Observable<NetworkFeatureByType[T]> = this.store.pipe(
     select(network.getFeature(this.featureId, this.featureType)),
@@ -39,7 +41,7 @@ export abstract class FeaturePresenter<T extends FeatureType> {
       .reduce((out, item) => ({ ...out, [getId(item)]: getNewRenderable(item) }), {});
     Object.values(added).forEach((line) => this.renderable$$.next(line));
     Object.keys(inventory)
-      .filter((signature) => Object.keys(existing).includes(signature))
+      .filter((signature) => !Object.keys(existing).includes(signature))
       .forEach((signature) => inventory[signature].destroy());
 
     return { ...existing, ...added };

@@ -8,6 +8,7 @@ import {
   share,
   startWith,
   switchMap,
+  take,
 } from 'rxjs';
 import Konva from 'konva';
 import { map as _map } from 'lodash';
@@ -87,25 +88,28 @@ export class ViewportComponent {
         this.render();
       });
 
+    chainRead(this.camera$, 'ready$')
+      .pipe(withSampleFrom(this.stage$), take(1))
+      .subscribe(([camera, stage]) => {
+        const layer = new Konva.Layer();
+        stage.add(layer);
+
+        const networkPresenter = new NetworkPresenter(this.systemService, this.store);
+        networkPresenter.renderable$.subscribe((renderable) => layer.add(renderable));
+        networkPresenter.update$.subscribe(() => this.render());
+        networkPresenter.present(camera);
+        this.render();
+      });
+
     this.systemService.system$
       .pipe(
         filter(Boolean),
-        withSampleFrom(this.stage$, this.camera$, chainRead(this.camera$, 'ready$'))
+        withSampleFrom(chainRead(this.camera$, 'ready$'))
       )
       .subscribe({
         error(thrown) { console.error(thrown); },
-        next: ([system, stage, camera]) => {
+        next: ([system, camera]) => {
           camera.position.set(getSystemCenter(system));
-
-          const layer = new Konva.Layer();
-          stage.add(layer);
-
-          const networkPresenter = new NetworkPresenter(this.systemService, this.store);
-          networkPresenter.renderable$.subscribe((renderable) => layer.add(renderable));
-          networkPresenter.present(camera);
-          this.render();
-
-          setInterval(() => this.render(), 5000);
         },
       });
   }

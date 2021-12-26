@@ -1,5 +1,6 @@
 import { Observable, Subject } from 'rxjs';
 import { Vector2Expression } from '../types/geometry';
+import { cacheValue } from '../utils/rx-operators';
 
 export class Vector2 implements Vector2Expression {
   static ZERO: Readonly<Vector2> = new Vector2(0, 0, true);
@@ -117,9 +118,9 @@ export class Vector2 implements Vector2Expression {
 }
 
 class RxVector2 extends Vector2 {
-  private change = new Subject<this>();
+  private change$$ = new Subject<this>();
 
-  $: Observable<RxVector2> = this.change.asObservable();
+  $: Observable<RxVector2> = this.change$$.pipe(cacheValue());
 
   static isSet(v: RxVector2): boolean {
     return !Number.isNaN(v.x) && !Number.isNaN(v.y);
@@ -131,7 +132,7 @@ class RxVector2 extends Vector2 {
 
   override set({ x = this.x, y = this.y }: Vector2Expression): this {
     Object.assign(this.buffer, [x, y]);
-    this.change.next(this);
+    this.change$$.next(this);
     return this;
   }
 }

@@ -27,8 +27,8 @@ export function sampleMap<A, B>(source$: Observable<B>): OperatorFunction<A, B> 
   return concatMap(() => source$.pipe(take(1)));
 }
 
-export function chainRead<T, K extends KeysOfType<T, Observable<any>>>(source$: Observable<T>, key: K): Observable<T[K]> {
-  return source$.pipe(switchMap((v) => v[key]));
+export function chainRead<T, K extends KeysOfType<T, Observable<any>>>(source$: Observable<T>, key: K): T[K] {
+  return source$.pipe(switchMap((v) => v[key])) as T[K];
 }
 
 // logging utility
