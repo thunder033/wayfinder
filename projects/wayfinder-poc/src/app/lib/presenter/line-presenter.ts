@@ -7,7 +7,7 @@ import { Renderable } from '../viewport/viewport.types';
 import { asLinePoints, chunkLineNodes, getSegments, LineNodeChunk } from '../viewport/viewport-utils';
 import { NodePresenter } from './node-presenter';
 import { combineLatest, map, Observable, scan, switchMap } from 'rxjs';
-import { cacheValue, withSampleFrom } from '@wf-core/utils/rx-operators';
+import { cacheValue } from '@wf-core/utils/rx-operators';
 import { Vector2 } from '@wf-core/math';
 
 const LINE_STYLE: Partial<Konva.LineConfig> = {
@@ -70,28 +70,37 @@ export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
   );
 
   initialize(): void {
-    this.kLines$
-      .pipe(withSampleFrom(this.vertexChunks$, this.vertices$))
+    combineLatest({
+      kLines: this.kLines$,
+      chunks: this.vertexChunks$,
+      vertices: this.vertices$,
+    })
       .subscribe({
         error: (thrown) => console.error(thrown),
-        next: ([kLines, chunks, vertices]) => {
-          console.log(`${this.featureType} ${this.featureId}`, vertices);
+        next: ({ kLines, chunks, vertices }) => {
+          console.log(`${this.featureType} ${this.featureId}`, { vertices, chunks });
           chunks
             .filter(({ signature }) => !!kLines[signature])
             .forEach((chunk) => {
-              kLines[chunk.signature].points(asLinePoints(chunk.nodes.map((node) => vertices[node.id])));
+              const chunkVertices = chunk.nodes
+                .filter((node) => !!vertices[node.id])
+                .map((node) => vertices[node.id]);
+              kLines[chunk.signature].points(asLinePoints(chunkVertices));
+              kLines[chunk.signature].moveToBottom();
             });
         },
       });
 
-    this.nodeMarkers$
-      .pipe(withSampleFrom(this.vertices$))
+    combineLatest({
+      nodeMarkers: this.nodeMarkers$,
+      vertices: this.vertices$,
+    })
       .subscribe({
         error: (thrown) => console.error(thrown),
-        next: ([nodeMarkers, vertices]) => {
+        next: ({ nodeMarkers, vertices }) => {
           Object.entries(nodeMarkers).forEach(([id, marker]) => {
-            marker.x(vertices[id].x);
-            marker.y(vertices[id].y);
+            marker.x(vertices[id]?.x);
+            marker.y(vertices[id]?.y);
           });
         }
       });

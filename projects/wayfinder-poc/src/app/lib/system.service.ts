@@ -51,7 +51,7 @@ const geometryNode1 = createFeature(FeatureType.GeometryNode, {
 
 const segment1 = createFeature(FeatureType.Segment, {
   mode: Mode.Metro,
-  nodes: [station1, station2, geometryNode1, station3],
+  nodes: [station1, station2],
 });
 
 const segment2 = createFeature(FeatureType.Segment, {
@@ -82,14 +82,8 @@ const line2 = createFeature(FeatureType.Line, {
 });
 
 const system1 = createFeature(FeatureType.System, {
-  name: 'Test System',
-  nodes: [station1, station2, station3, geometryNode1, station4],
-  lines: [line2, line1],
-});
-
-const system1a = createFeature(FeatureType.System, {
   name: 'Test System A',
-  nodes: [station1, station2, station3, geometryNode1],
+  nodes: [station1, station2],
   lines: [line1],
 });
 
@@ -113,7 +107,7 @@ function toMap<T extends NetworkFeature>(...input: T[]): {[id: string]: Dehydrat
   providedIn: 'root'
 })
 export class SystemService {
-  system$ = this.store$.pipe(select(network.getSystem(system1a.id)), cacheValue());
+  system$ = this.store$.pipe(select(network.getSystem(system1.id)), cacheValue());
 
   constructor(private store$: Store<WFState>) {
     // const state: NetworkState = {
@@ -132,44 +126,77 @@ export class SystemService {
   }
 
   private restoreRegion() {
-    const nodes = [station1, station2, station3, station4, geometryNode1];
-    const segments = [segment1, segment2];
-    const services = [service1, service2];
-    const lines = [line1, line2];
-    const systems = [system1];
-
-    const alternation: Alteration = {
-      id: 'alteration-0',
-      date: new Date().toISOString(),
-      additions: [
-        ...nodes,
-        ...segments,
-        ...services,
-        ...lines,
-        ...systems,
-      ].map(dehydrate),
-      removals: [],
-      changes: [],
-    };
+    // const nodes = [station1, station2, station3, station4, geometryNode1];
+    // const segments = [segment1, segment2];
+    // const services = [service1, service2];
+    // const lines = [line1, line2];
+    // const systems = [system1];
+    //
+    // const alternation: Alteration = {
+    //   id: 'alteration-0',
+    //   date: new Date().toISOString(),
+    //   additions: [
+    //     ...nodes,
+    //     ...segments,
+    //     ...services,
+    //     ...lines,
+    //     ...systems,
+    //   ].map(dehydrate),
+    //   removals: [],
+    //   changes: [],
+    // };
 
     const alteration0: Alteration = {
-      id: 'alteration-1',
+      id: 'alteration-0',
       date: new Date().toISOString(),
       additions: [
         station1,
         station2,
-        station3,
-        geometryNode1,
         segment1,
         service1,
         line1,
-        system1a,
+        system1,
       ].map(dehydrate),
       removals: [],
       changes: [],
     };
 
     const alteration1: Alteration = {
+      id: 'alteration-1',
+      date: new Date().toISOString(),
+      additions: [
+        station3,
+        geometryNode1,
+      ].map(dehydrate),
+      removals: [],
+      changes: [{
+        featureId: segment1.id,
+        featureType: FeatureType.Segment,
+        path: ['nodes', 2],
+        left: undefined,
+        right: geometryNode1.id,
+      }, {
+        featureId: segment1.id,
+        featureType: FeatureType.Segment,
+        path: ['nodes', 3],
+        left: undefined,
+        right: station3.id,
+      }, {
+        featureId: system1.id,
+        featureType: FeatureType.System,
+        path: ['nodes', 2],
+        left: undefined,
+        right: geometryNode1.id,
+      }, {
+        featureId: system1.id,
+        featureType: FeatureType.System,
+        path: ['nodes', 3],
+        left: undefined,
+        right: station3.id,
+      }],
+    };
+
+    const alteration2: Alteration = {
       id: 'alteration-2',
       date: new Date().toISOString(),
       additions: [
@@ -180,13 +207,13 @@ export class SystemService {
       ].map(dehydrate),
       removals: [],
       changes: [{
-        featureId: system1a.id,
+        featureId: system1.id,
         featureType: FeatureType.System,
         path: ['nodes', 4],
         left: undefined,
         right: station4.id,
       }, {
-        featureId: system1a.id,
+        featureId: system1.id,
         featureType: FeatureType.System,
         path: ['lines', 1],
         left: undefined,
@@ -199,7 +226,7 @@ export class SystemService {
       network: {
         id: 'network-0',
         size: { x: 1, y: 1 },
-        ledger: [alteration0, alteration1],
+        ledger: [alteration0, alteration1, alteration2],
       }
     };
 

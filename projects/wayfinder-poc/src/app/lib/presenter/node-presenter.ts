@@ -177,7 +177,7 @@ export class StationPresenter extends NodePresenter<Station> {
       this.label?.text(name + ' (' + this.featureId + ')');
       this.label?.x(x);
       this.label?.y(y);
-      this.label?.zIndex(10);
+      this.label?.moveToTop();
       this.update$$.next();
     });
   }
