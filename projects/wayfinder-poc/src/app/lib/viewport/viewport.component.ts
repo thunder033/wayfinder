@@ -1,5 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import {
+  BehaviorSubject,
+  combineLatest,
   debounceTime,
   filter,
   fromEvent,
@@ -74,6 +76,7 @@ export class ViewportComponent {
 
   onResize$ = fromEvent(window, 'resize').pipe(debounceTime(250), share());
 
+  displayGrid$$ = new BehaviorSubject(false);
   private gridLayer?: Konva.Layer;
 
   constructor(public systemService: SystemService, private store: Store<WFState>,) {
@@ -106,15 +109,13 @@ export class ViewportComponent {
     this.systemService.system$
       .pipe(
         filter(Boolean),
-        withSampleFrom(this.stage$, chainRead(this.camera$, 'ready$'))
+        withSampleFrom(chainRead(this.camera$, 'ready$'))
       )
       .subscribe({
         error(thrown) { console.error(thrown); },
-        next: ([system, stage, camera]) => {
+        next: ([system, camera]) => {
           camera.position.set(getSystemCenter(system));
-          this.gridLayer?.destroy();
-          this.gridLayer = this.displayGrid(camera);
-          stage.add(this.gridLayer);
+          this.displayGrid();
         },
       });
   }
@@ -123,7 +124,23 @@ export class ViewportComponent {
     this.stage$.subscribe((stage) => stage.draw());
   }
 
-  displayGrid(camera: Camera): Konva.Layer {
+  displayGrid(doDisplay = this.displayGrid$$.value) {
+    this.displayGrid$$.next(doDisplay);
+    if (!doDisplay) {
+      this.gridLayer?.destroy();
+      return;
+    }
+
+    combineLatest([this.stage$, chainRead(this.camera$, 'ready$')])
+      .pipe(take(1))
+      .subscribe(([stage, camera]) => {
+        this.gridLayer?.destroy();
+        this.gridLayer = this.createGridLayer(camera);
+        stage.add(this.gridLayer);
+      });
+  }
+
+  createGridLayer(camera: Camera): Konva.Layer {
     const layer = new Konva.Layer();
     const yLineCount = Math.abs(window.innerHeight / camera.positionScale.y);
     for (let i = 0; i < yLineCount; i++) {
