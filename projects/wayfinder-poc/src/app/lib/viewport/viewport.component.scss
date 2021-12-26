@@ -8,6 +8,20 @@
 
 .control-panel {
   position: absolute;
-  top: 0;
-  left: 0;
+  bottom: .5rem;
+  left: 50%;
+  border: 1px #333 solid;
+  border-radius: .25em;
+  padding: .5em;
+  background: #eee;
+  box-shadow: 1px 1px 1px #555;
+  margin-left: -7em;
+
+  & > button + button {
+    margin-left: .25em;
+  }
+
+  & > span {
+    margin: 0 .25em;
+  }
 }

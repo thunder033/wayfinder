@@ -146,9 +146,15 @@ export class SystemService {
     //   changes: [],
     // };
 
+    function getDateForYear(year: number): string {
+      const date = new Date();
+      date.setFullYear(year);
+      return date.toISOString();
+    }
+
     const alteration0: Alteration = {
       id: 'alteration-0',
-      date: new Date().toISOString(),
+      date: getDateForYear(1960),
       additions: [
         station1,
         station2,
@@ -163,7 +169,7 @@ export class SystemService {
 
     const alteration1: Alteration = {
       id: 'alteration-1',
-      date: new Date().toISOString(),
+      date: getDateForYear(1975),
       additions: [
         station3,
         geometryNode1,
@@ -198,7 +204,7 @@ export class SystemService {
 
     const alteration2: Alteration = {
       id: 'alteration-2',
-      date: new Date().toISOString(),
+      date: getDateForYear(1990),
       additions: [
         station4,
         segment2,

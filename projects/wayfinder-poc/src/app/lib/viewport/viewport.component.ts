@@ -23,8 +23,9 @@ import { Camera } from './camera';
 import { Vector2 } from '@wf-core/math';
 import { getBoundingBox } from '@wf-core/utils/geometry';
 import { NetworkPresenter } from '../presenter/network-presenter';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { WFState } from '@wf-core/types/store';
+import { region } from '@wf-core/state/region';
 
 // AlterationService
 // - alteration$
@@ -78,6 +79,13 @@ export class ViewportComponent {
 
   displayGrid$$ = new BehaviorSubject(false);
   private gridLayer?: Konva.Layer;
+
+  currentYear$ = this.store.pipe(
+    select(region.getHeadAlteration),
+    filter(Boolean),
+    map((alteration) => new Date(alteration.date).getFullYear()),
+    cacheValue(),
+  );
 
   constructor(public systemService: SystemService, private store: Store<WFState>,) {
     this.onResize$
