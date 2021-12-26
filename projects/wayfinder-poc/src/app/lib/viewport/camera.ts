@@ -1,6 +1,7 @@
 import { Vector2 } from '@wf-core/math';
 import Konva from 'konva';
-import { combineLatest, filter, mapTo, Observable } from 'rxjs';
+import { combineLatest, filter, mapTo, merge, Observable, share, take } from 'rxjs';
+import { cacheValue } from '@wf-core/utils/rx-operators';
 
 export class Camera {
   position = new Vector2.Rx(0, 0);
@@ -14,7 +15,14 @@ export class Camera {
   ready$: Observable<Camera> = combineLatest([
     this.imageSizePx.$.pipe(filter(Vector2.Rx.isSet)),
     this.imageOriginPx.$.pipe(filter(Vector2.Rx.isSet)),
-  ]).pipe(mapTo(this));
+  ]).pipe(take(1), mapTo(this), cacheValue());
+
+  update$: Observable<Camera> = merge(
+    this.position.$,
+    this.positionScale.$,
+    this.imageScale.$,
+    this.imageOriginPx.$,
+  ).pipe(mapTo(this), cacheValue());
 
   constructor(private stage: Konva.Stage) {
     this.imageSizePx.$.pipe(filter(Vector2.Rx.isSet)).subscribe((imageSize) =>

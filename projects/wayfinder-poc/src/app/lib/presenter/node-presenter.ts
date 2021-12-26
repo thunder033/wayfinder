@@ -103,7 +103,7 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
   }
 
   getLineVertexPosition$(lineId: string): Observable<Vector2> {
-    return combineLatest([this.markerTrays$, this.node$, this.camera.position.$]).pipe(
+    return combineLatest([this.markerTrays$, this.node$, this.camera.update$]).pipe(
       filter(([markerTrays]) => !!markerTrays.find((tray) => tray.lineIds.includes(lineId))),
       map(([markerTrays, node]) => {
         const lineTray = markerTrays.find((tray) => tray.lineIds.includes(lineId))!;
@@ -172,7 +172,7 @@ export class StationPresenter extends NodePresenter<Station> {
     this.label = new Konva.Text({ text: '' });
     this.renderable$$.next(this.label);
 
-    combineLatest([this.node$, this.camera.position.$]).subscribe(([{ position, name }]) => {
+    combineLatest([this.node$, this.camera.update$]).subscribe(([{ position, name }]) => {
       const { x, y } = this.camera.project(position);
       this.label?.text(name + ' (' + this.featureId + ')');
       this.label?.x(x);

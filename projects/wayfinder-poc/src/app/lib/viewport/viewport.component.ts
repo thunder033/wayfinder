@@ -74,6 +74,8 @@ export class ViewportComponent {
 
   onResize$ = fromEvent(window, 'resize').pipe(debounceTime(250), share());
 
+  private gridLayer?: Konva.Layer;
+
   constructor(public systemService: SystemService, private store: Store<WFState>,) {
     this.onResize$
       .pipe(startWith(null), withSampleFrom(this.camera$, this.renderTarget$))
@@ -104,17 +106,65 @@ export class ViewportComponent {
     this.systemService.system$
       .pipe(
         filter(Boolean),
-        withSampleFrom(chainRead(this.camera$, 'ready$'))
+        withSampleFrom(this.stage$, chainRead(this.camera$, 'ready$'))
       )
       .subscribe({
         error(thrown) { console.error(thrown); },
-        next: ([system, camera]) => {
+        next: ([system, stage, camera]) => {
           camera.position.set(getSystemCenter(system));
+          this.gridLayer?.destroy();
+          this.gridLayer = this.displayGrid(camera);
+          stage.add(this.gridLayer);
         },
       });
   }
 
   render() {
     this.stage$.subscribe((stage) => stage.draw());
+  }
+
+  displayGrid(camera: Camera): Konva.Layer {
+    const layer = new Konva.Layer();
+    const yLineCount = Math.abs(window.innerHeight / camera.positionScale.y);
+    for (let i = 0; i < yLineCount; i++) {
+      const { y: y1 } = camera.project({ x: 0, y: i });
+      layer.add(new Konva.Line({
+        points: [0, y1, window.innerWidth, y1],
+        stroke: '#555',
+        strokeWidth: 1,
+      }));
+      if (i === 0) {
+        continue;
+      }
+
+      const { y: y2 } = camera.project({ x: 0, y: -i });
+      layer.add(new Konva.Line({
+        points: [0, y2, window.innerWidth, y2],
+        stroke: '#555',
+        strokeWidth: 1,
+      }));
+    }
+
+    const xLineCount = Math.abs(window.innerWidth / camera.positionScale.x);
+    for (let i = 0; i < xLineCount; i++) {
+      const { x: x1 } = camera.project({ x: i, y: 0 });
+      layer.add(new Konva.Line({
+        points: [x1, 0, x1, window.innerHeight],
+        stroke: '#555',
+        strokeWidth: 1,
+      }));
+      if (i === 0) {
+        continue;
+      }
+
+      const { x: x2 } = camera.project({ x: -i, y: 0 });
+      layer.add(new Konva.Line({
+        points: [x2, 0, x2, window.innerHeight],
+        stroke: '#555',
+        strokeWidth: 1,
+      }));
+    }
+
+    return layer;
   }
 }
