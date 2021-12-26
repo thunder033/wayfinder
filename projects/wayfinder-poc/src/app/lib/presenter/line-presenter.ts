@@ -22,6 +22,7 @@ function getNodes(line: Line): NodeInventory {
   return getSegments(line)
     .map((segment: Segment) => segment.nodes)
     .flat()
+    .filter(Boolean)
     .reduce((out, node) => ({ ...out, [node.id]: node }), {});
 }
 
@@ -83,7 +84,7 @@ export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
             .filter(({ signature }) => !!kLines[signature])
             .forEach((chunk) => {
               const chunkVertices = chunk.nodes
-                .filter((node) => !!vertices[node.id])
+                .filter((node) => !!node && !!vertices[node.id])
                 .map((node) => vertices[node.id]);
               kLines[chunk.signature].points(asLinePoints(chunkVertices));
               kLines[chunk.signature].moveToBottom();

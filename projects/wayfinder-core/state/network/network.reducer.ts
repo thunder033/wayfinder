@@ -2,7 +2,10 @@ import { createAction, createReducer, on, props } from '@ngrx/store';
 import { NetworkFeatureState, NetworkState } from '../../types/store';
 import { Alteration, NetworkFeatureChange } from '../../types/network';
 import { FeatureType, NetworkFeature } from '../../types/network-features';
-import { omit, set, cloneDeep } from 'lodash';
+import { omit, set, cloneDeep, get } from 'lodash';
+
+import * as _ from 'lodash';
+window._ = _;
 
 export const networkDefaultState: NetworkState = {
   alterationStack: [],
@@ -16,6 +19,7 @@ export const networkDefaultState: NetworkState = {
 export const networkActions = {
   restore: createAction('NETWORK::RESTORE', props<{ state: NetworkState }>()),
   applyAlteration: createAction('NETWORK::APPLY_ALTERATION', props<Alteration>()),
+  rollBackAlteration: createAction('NETWORK::ROLL_BACK_ALTERATION', props<Alteration>()),
 };
 
 export const networkReducer = createReducer(
@@ -26,9 +30,33 @@ export const networkReducer = createReducer(
       applyAdditions(
         applyRemovals(state, alteration.removals),
         alteration.additions),
-      alteration.changes),
+      alteration.changes, 'right'),
     alterationStack: [...state.alterationStack, alteration.id],
   })),
+  on(networkActions.rollBackAlteration, (state, alteration) => {
+    if (
+      state.alterationStack.length < 2 ||
+      state.alterationStack[state.alterationStack.length - 1] !== alteration.id
+    ) {
+      console.warn('Invalid roll back attempt!');
+      return state;
+    }
+
+    console.log('do rollback on', state);
+
+    const out = {
+      ...applyChanges(
+        applyAdditions(
+          applyRemovals(state, alteration.additions),
+          alteration.removals),
+        alteration.changes, 'left'),
+      alterationStack: state.alterationStack.slice(0, -1),
+    };
+
+    console.log('rolled back', out);
+
+    return out;
+  }),
 );
 
 function applyAdditions(state: NetworkState, additions: NetworkFeature[]): NetworkState {
@@ -44,18 +72,40 @@ function applyAdditions(state: NetworkState, additions: NetworkFeature[]): Netwo
 function applyRemovals(state: NetworkState, removals: NetworkFeature[]): NetworkState {
   return removals.reduce((out, removal) => ({
     ...out,
-    [getKey(removal)]: omit(out, removal.id),
+    [getKey(removal)]: omit(out[getKey(removal)], removal.id),
   }), state);
 }
 
-function applyChanges(state: NetworkState, changes: NetworkFeatureChange[]): NetworkState {
+function omitAt<T extends object>(target: T, path: (string | number)[]): T {
+  if (path.length > 1) {
+    const out = cloneDeep(target);
+    const workingPath = cloneDeep(path);
+    const targetProp = workingPath.pop()!;
+    const parent = get(out, workingPath);
+    if (Array.isArray(parent) && typeof targetProp === 'number') {
+      parent.splice(targetProp, 1);
+    } else {
+      delete parent[targetProp];
+    }
+    return out;
+  }
+
+  // does not work for arrays a root level
+  return omit(target, path) as T;
+}
+
+function applyChanges(
+  state: NetworkState,
+  changes: NetworkFeatureChange[],
+  side: 'left' | 'right',
+): NetworkState {
   return changes.reduce((out, change) => {
     const key = getKey({ type: change.featureType });
     const feature = out[key][change.featureId];
-    if (typeof change.right === 'undefined') {
+    if (typeof change[side] === 'undefined') {
       return ({
         ...out,
-        [key]: { ...out[key], [feature.id]: feature },
+        [key]: { ...out[key], [feature.id]: omitAt(feature, change.path) },
       });
     }
     return ({
@@ -63,7 +113,7 @@ function applyChanges(state: NetworkState, changes: NetworkFeatureChange[]): Net
       [key]: {
         ...out[key],
         [feature.id]: {
-          ...set(cloneDeep(feature), change.path, change.right),
+          ...set(cloneDeep(feature), change.path, change[side]),
         }
       }
     });

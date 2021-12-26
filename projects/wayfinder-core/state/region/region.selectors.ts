@@ -2,9 +2,15 @@ import { createSelector } from '@ngrx/store';
 import { WFState } from '../../types/store';
 import { network } from '../network';
 
-export const getRegion = (state: WFState) => state.region;
+const getRegion = (state: WFState) => state.region;
 
-export const getNextAlteration = createSelector(
+const getHeadAlteration = createSelector(
+  getRegion,
+  network.peekAlterationStack,
+  (region, alterationId) => region.network?.ledger.find(({ id }) => id === alterationId),
+);
+
+const getNextAlteration = createSelector(
   getRegion,
   network.peekAlterationStack,
   (region, alterationId) => {
@@ -18,5 +24,7 @@ export const getNextAlteration = createSelector(
 );
 
 export const regionSelectors = {
+  getRegion,
   getNextAlteration,
+  getHeadAlteration,
 };

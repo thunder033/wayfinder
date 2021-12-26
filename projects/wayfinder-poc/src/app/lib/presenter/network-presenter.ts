@@ -49,7 +49,7 @@ export class NetworkPresenter {
 
   @Bind()
   private requiresPresenter(feature: NetworkFeature): boolean {
-    return !this.presenters[feature.id];
+    return feature && !this.presenters[feature.id];
   }
 
   @Bind()

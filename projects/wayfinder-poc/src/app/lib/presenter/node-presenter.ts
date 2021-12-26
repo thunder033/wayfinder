@@ -104,7 +104,7 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
 
   getLineVertexPosition$(lineId: string): Observable<Vector2> {
     return combineLatest([this.markerTrays$, this.node$, this.camera.update$]).pipe(
-      filter(([markerTrays]) => !!markerTrays.find((tray) => tray.lineIds.includes(lineId))),
+      filter(([markerTrays, node]) => !!node && !!markerTrays.find((tray) => tray.lineIds.includes(lineId))),
       map(([markerTrays, node]) => {
         const lineTray = markerTrays.find((tray) => tray.lineIds.includes(lineId))!;
         const trayOffset = getTrayOffset(lineTray.angle, markerTrays);
@@ -160,7 +160,9 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
   }
 
   private hasNode(line: Line, nodeId: string = this.featureId) {
-    return getSegments(line).some(({ nodes }) => !!nodes.find(({ id }) => id === nodeId));
+    return getSegments(line).some(({ nodes }) =>
+      !!nodes.filter(Boolean).find(({ id }) => id === nodeId)
+    );
   }
 }
 

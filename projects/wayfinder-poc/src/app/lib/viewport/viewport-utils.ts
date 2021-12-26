@@ -11,7 +11,7 @@ export function toDeg(rad: number): number {
 }
 
 export function getSegments(line: Line): Segment[] {
-  return line.services.map(({ segments }) => segments).flat();
+  return line?.services.map(({ segments }) => segments).flat() ?? [];
 }
 
 export interface LineNodeChunk {
@@ -20,7 +20,7 @@ export interface LineNodeChunk {
 }
 
 function getChunkSignature(nodes: WFNode<WFNodeType>[]): string {
-  return nodes.map(({ id }) => id).join('::');
+  return nodes.filter(Boolean).map(({ id }) => id).join('::');
 }
 
 export function chunkLineNodes(line: Line): LineNodeChunk[] {

@@ -1,6 +1,7 @@
 <div>
   <div #viewport id="viewport"></div>
   <div class="control-panel">
+    <button (click)="systemService.rollBackAlteration()">Prev</button>
     <button (click)="systemService.applyNextAlteration()">Next</button>
     <button (click)="displayGrid(!displayGrid$$.value)">Toggle Grid</button>
   </div>

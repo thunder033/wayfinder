@@ -241,4 +241,13 @@ export class SystemService {
         next: (alteration) => this.store$.dispatch(network.applyAlteration(alteration))
       });
   }
+
+  rollBackAlteration() {
+    this.store$
+      .pipe(select(region.getHeadAlteration), take(1), filter(Boolean))
+      .subscribe({
+        error: (thrown) => console.error(thrown),
+        next: (alteration) => this.store$.dispatch(network.rollBackAlteration(alteration))
+      });
+  }
 }
