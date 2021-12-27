@@ -58,13 +58,13 @@ const service2 = createFeature(FeatureType.Service, {
 
 const line1 = createFeature(FeatureType.Line, {
   name: 'Red Line',
-  color: '#f00',
+  color: '#b84040',
   services: [service1],
 });
 
 const line2 = createFeature(FeatureType.Line, {
   name: 'Blue Line',
-  color: '#00f',
+  color: '#3656c5',
   services: [service2],
 });
 

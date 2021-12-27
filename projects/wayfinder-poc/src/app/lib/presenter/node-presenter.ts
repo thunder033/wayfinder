@@ -86,6 +86,22 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
     cacheValue(),
   );
 
+  labelPosition$ = combineLatest([this.markerTrays$, this.node$, this.camera.update$]).pipe(
+    filter(([markerTrays, node]) => !!node && !!markerTrays.length),
+    map(([markerTrays, node]) => {
+      const tray = markerTrays[0];
+      const radius = NODE_STYLE.radius!;
+      const sign = tray.angle < 0 ? 1 : -1;
+      const markerCount = tray.lineIds.length;
+      const labelOffset = sign * ((markerCount / 2 + 1) * (radius * 2) - radius);
+
+      const u = new Vector2(-Math.sin(tray.angle), Math.cos(tray.angle));
+      return this.camera.project(node.position)
+        .add(u.scale(labelOffset).multiply({ x: 1, y: - 1}));
+    }),
+    cacheValue(),
+  );
+
   constructor(
     protected readonly camera: Camera,
     protected readonly node: T,
@@ -113,7 +129,7 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
         const sign = lineTray.angle < 0 ? -1 : 1;
         const markerCount = lineTray.lineIds.length;
         const markerIndex = lineTray.lineIds.indexOf(lineId);
-        const markerOffset = sign * (markerIndex * radius * 2 + radius - markerCount * radius * 2);
+        const markerOffset = sign * ((markerIndex + 1 - markerCount / 2) * (radius * 2) - radius);
 
         const u = new Vector2(-Math.sin(lineTray.angle), Math.cos(lineTray.angle));
         return this.camera.project(node.position)
@@ -174,8 +190,7 @@ export class StationPresenter extends NodePresenter<Station> {
     this.label = new Konva.Text({ text: '' });
     this.renderable$$.next(this.label);
 
-    combineLatest([this.node$, this.camera.update$]).subscribe(([{ position, name }]) => {
-      const { x, y } = this.camera.project(position);
+    combineLatest([this.node$, this.labelPosition$]).subscribe(([{ name }, { x, y }]) => {
       this.label?.text(name + ' (' + this.featureId + ')');
       this.label?.x(x);
       this.label?.y(y);
