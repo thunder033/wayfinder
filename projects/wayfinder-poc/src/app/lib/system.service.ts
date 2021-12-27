@@ -1,29 +1,16 @@
 import { Injectable } from '@angular/core';
 import {
-  Dehydrated,
   FeatureType,
   Mode,
-  NetworkFeature,
-  NetworkFeatureByType,
   ServiceType,
 } from '@wf-core/types/network-features';
 import { select, Store } from '@ngrx/store';
 import { RegionState, WFState } from '@wf-core/types/store';
-import { isArray } from 'lodash';
 import { network } from '@wf-core/state/network';
-import { isNetworkFeature } from '@wf-core/utils/network-feature.utils';
 import { cacheValue } from '@wf-core/utils/rx-operators';
 import { region } from '@wf-core/state/region';
-import { Alteration } from '@wf-core/types/network';
 import { filter, take } from 'rxjs';
-
-let id = 0;
-function createFeature<F extends FeatureType, T extends NetworkFeature = NetworkFeatureByType[F]>(
-  type: F,
-  properties: Omit<T, 'id' | 'type'>
-): T {
-  return { id: `feature-${id++}`, type, ...properties } as T;
-}
+import { createAlteration, createFeature, dehydrate } from './data-utils';
 
 const station1 = createFeature(FeatureType.Station, {
   name: 'Station 1',
@@ -87,21 +74,7 @@ const system1 = createFeature(FeatureType.System, {
   lines: [line1],
 });
 
-function dehydrate<T extends NetworkFeature>(feature: T): Dehydrated<T> {
-  return Object.entries(feature).reduce((out, [key, value]) => ({
-    ...out,
-    [key]: isArray(value)
-      ? value.map((item) => isNetworkFeature(item) ? item.id : item)
-      : isNetworkFeature(value) ? value.id : value,
-  }), {} as any);
-}
 
-function toMap<T extends NetworkFeature>(...input: T[]): {[id: string]: Dehydrated<T>} {
-  return input.reduce(
-    (out, feature) => ({ ...out, [feature.id]: dehydrate(feature) }),
-    {},
-  );
-}
 
 @Injectable({
   providedIn: 'root'
@@ -146,15 +119,7 @@ export class SystemService {
     //   changes: [],
     // };
 
-    function getDateForYear(year: number): string {
-      const date = new Date();
-      date.setFullYear(year);
-      return date.toISOString();
-    }
-
-    const alteration0: Alteration = {
-      id: 'alteration-0',
-      date: getDateForYear(1960),
+    const alteration0 = createAlteration(1960, {
       additions: [
         station1,
         station2,
@@ -163,18 +128,13 @@ export class SystemService {
         line1,
         system1,
       ].map(dehydrate),
-      removals: [],
-      changes: [],
-    };
+    });
 
-    const alteration1: Alteration = {
-      id: 'alteration-1',
-      date: getDateForYear(1975),
+    const alteration1 = createAlteration(1975, {
       additions: [
         station3,
         geometryNode1,
       ].map(dehydrate),
-      removals: [],
       changes: [{
         featureId: segment1.id,
         featureType: FeatureType.Segment,
@@ -200,18 +160,15 @@ export class SystemService {
         left: undefined,
         right: station3.id,
       }],
-    };
+    });
 
-    const alteration2: Alteration = {
-      id: 'alteration-2',
-      date: getDateForYear(1990),
+    const alteration2 = createAlteration(1990, {
       additions: [
         station4,
         segment2,
         service2,
         line2,
       ].map(dehydrate),
-      removals: [],
       changes: [{
         featureId: system1.id,
         featureType: FeatureType.System,
@@ -225,7 +182,7 @@ export class SystemService {
         left: undefined,
         right: line2.id,
       }],
-    };
+    });
 
     const state: RegionState = {
       alterationIndex: 0,
