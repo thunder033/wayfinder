@@ -12,6 +12,7 @@ import { region } from '@wf-core/state/region';
 import { filter, take } from 'rxjs';
 import { createAlteration, createFeature, dehydrate } from './data-utils';
 
+// Most of this file is mock data right now, eventually this would come from a database
 const station1 = createFeature(FeatureType.Station, {
   name: 'Station 1',
   position: { x: 1, y: 1 },
@@ -74,8 +75,6 @@ const system1 = createFeature(FeatureType.System, {
   lines: [line1],
 });
 
-
-
 @Injectable({
   providedIn: 'root'
 })
@@ -83,42 +82,11 @@ export class SystemService {
   system$ = this.store$.pipe(select(network.getSystem(system1.id)), cacheValue());
 
   constructor(private store$: Store<WFState>) {
-    // const state: NetworkState = {
-    //   alterationStack: [],
-    //   node: toMap<WFNode<WFNodeType>>(station1, station2, station3, station4, geometryNode1),
-    //   segment: toMap(segment1, segment2),
-    //   service: toMap(service1, service2),
-    //   line: toMap(line1, line2),
-    //   system: toMap(system1),
-    // };
-    //
-    // store$.dispatch(network.restore({ state }));
-
     this.restoreRegion();
     this.applyNextAlteration();
   }
 
   private restoreRegion() {
-    // const nodes = [station1, station2, station3, station4, geometryNode1];
-    // const segments = [segment1, segment2];
-    // const services = [service1, service2];
-    // const lines = [line1, line2];
-    // const systems = [system1];
-    //
-    // const alternation: Alteration = {
-    //   id: 'alteration-0',
-    //   date: new Date().toISOString(),
-    //   additions: [
-    //     ...nodes,
-    //     ...segments,
-    //     ...services,
-    //     ...lines,
-    //     ...systems,
-    //   ].map(dehydrate),
-    //   removals: [],
-    //   changes: [],
-    // };
-
     const alteration0 = createAlteration(1960, {
       additions: [
         station1,
@@ -189,6 +157,7 @@ export class SystemService {
       network: {
         id: 'network-0',
         size: { x: 1, y: 1 },
+        // ledger: bartAlterations,
         ledger: [alteration0, alteration1, alteration2],
       }
     };

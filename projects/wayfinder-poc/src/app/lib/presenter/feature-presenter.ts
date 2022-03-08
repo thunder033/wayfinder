@@ -6,6 +6,8 @@ import { select, Store } from '@ngrx/store';
 import { network } from '@wf-core/state/network';
 import { cacheValue } from '@wf-core/utils/rx-operators';
 
+// class AnimationController
+
 export abstract class FeaturePresenter<T extends FeatureType> {
   protected renderable$$ = new Subject<Renderable>();
   renderable$ = this.renderable$$.asObservable();
@@ -36,13 +38,19 @@ export abstract class FeaturePresenter<T extends FeatureType> {
     const existing: Inventory<R> = inputList
       .filter((item) => Object.keys(inventory).includes(getId(item)))
       .reduce((out, item) => ({ ...out, [getId(item)]: inventory[getId(item)] }), {});
+    // TODO: queue animation for updated renderables?
     const added: Inventory<R> = inputList
       .filter((item) => !Object.keys(inventory).includes(getId(item)))
       .reduce((out, item) => ({ ...out, [getId(item)]: getNewRenderable(item) }), {});
-    Object.values(added).forEach((line) => this.renderable$$.next(line));
+    // TODO: queue presentation of new renderables here
+    Object.values(added).forEach((item) => this.renderable$$.next(item));
+    Object.values(added).forEach((item) => item.fire('present'));
     Object.keys(inventory)
       .filter((signature) => !Object.keys(existing).includes(signature))
-      .forEach((signature) => inventory[signature].destroy());
+      .forEach((signature) => {
+        inventory[signature].destroy();
+        delete inventory[signature];
+      });
 
     return { ...existing, ...added };
   }

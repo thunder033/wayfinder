@@ -23,6 +23,10 @@ const STATION_MARKER_STYLE: Partial<Konva.CircleConfig> = {
   strokeWidth: 1,
 };
 
+const STATION_MARKER_START_STYLE: Partial<Konva.CircleConfig> = {
+  radius: 0,
+};
+
 interface MarkerTray {
   angle: number;
   lineIds: string[];
@@ -44,6 +48,9 @@ function getTrayOffset(angle: number, markerTrays: MarkerTray[]): number {
   }, 0);
 }
 
+/**
+ * Calculates parameters for presenting a system node (Station or GeometryNode)
+ */
 export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['type']> {
   private static presenter: {[nodeId: string]: NodePresenter<any>} = {};
   static create<T extends FeatureType>(
@@ -52,10 +59,13 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
     systemId: string,
     store: Store<WFState>,
   ): NodePresenter<WFNode<T>> {
-    const presenter = node.type === FeatureType.Station
+    const presenter: NodePresenter<WFNode<T>> = node.type === FeatureType.Station
       ? new StationPresenter(camera, node as any, systemId, store)
-      : new NodePresenter(camera, node, systemId, store);
+      : new NodePresenter(camera, node, systemId, store) as any;
     NodePresenter.presenter[node.id] = presenter;
+    presenter.node$.pipe(filter((v) => !v)).subscribe(() => {
+      delete NodePresenter.presenter[node.id];
+    });
     return presenter as NodePresenter<WFNode<T>>;
   }
 
@@ -63,7 +73,9 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
     return NodePresenter.presenter[id];
   }
 
-  node$ = this.feature$;
+  private lineNodeMarkers: {[lineId: string]: Renderable} = {};
+
+  node$: Observable<T> = this.feature$;
 
   nodeLines$: Observable<Line[]> = this.store.pipe(
     select(network.getSystem(this.systemId)),
@@ -115,7 +127,11 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
   initialize(node: T): void {}
 
   getLineNodeMarker(lineId: string): Renderable {
-    return new Konva.Group();
+    if (!this.lineNodeMarkers[lineId]) {
+      this.lineNodeMarkers[lineId] = this.createLineNodeMarker();
+    }
+
+    return this.lineNodeMarkers[lineId];
   }
 
   getLineVertexPosition$(lineId: string): Observable<Vector2> {
@@ -136,6 +152,14 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
           .add(u.scale(markerOffset).multiply({ x: 1, y: - 1}));
       }),
     );
+  }
+
+  presentMarker(lineId: string) {
+    this.getLineNodeMarker(lineId).show();
+  }
+
+  protected createLineNodeMarker(): Renderable {
+    return new Konva.Group();
   }
 
   @Bind()
@@ -199,7 +223,23 @@ export class StationPresenter extends NodePresenter<Station> {
     });
   }
 
-  override getLineNodeMarker(lineId: string): Renderable {
-    return new Konva.Circle({ ...STATION_MARKER_STYLE });
+  override createLineNodeMarker(): Renderable {
+    const marker = new Konva.Circle({ ...STATION_MARKER_STYLE, ...STATION_MARKER_START_STYLE });
+    marker.on('present', () => {
+      const tween = new Konva.Tween({
+        node: marker,
+        duration: 0.5,
+        ...STATION_MARKER_STYLE,
+      });
+      tween.play();
+    });
+    return marker;
+  }
+
+
+  override presentMarker(lineId: string) {
+    super.presentMarker(lineId);
+    const marker = this.getLineNodeMarker(lineId);
+    // TODO start animation here
   }
 }

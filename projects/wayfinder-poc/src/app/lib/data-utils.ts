@@ -1,7 +1,7 @@
 import { Dehydrated, FeatureType, NetworkFeature, NetworkFeatureByType } from '@wf-core/types/network-features';
 import { isArray } from 'lodash';
 import { isNetworkFeature } from '@wf-core/utils/network-feature.utils';
-import { Alteration, NetworkFeatureChange } from '@wf-core/types/network';
+import { Alteration } from '@wf-core/types/network';
 
 let id = 0;
 export function createFeature<F extends FeatureType, T extends NetworkFeature = NetworkFeatureByType[F]>(

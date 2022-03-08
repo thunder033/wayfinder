@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import {
   BehaviorSubject,
   combineLatest,
@@ -9,8 +9,9 @@ import {
   ReplaySubject,
   share,
   startWith,
+  Subject,
   switchMap,
-  take,
+  take, takeUntil,
 } from 'rxjs';
 import Konva from 'konva';
 import { map as _map } from 'lodash';
@@ -27,36 +28,25 @@ import { select, Store } from '@ngrx/store';
 import { WFState } from '@wf-core/types/store';
 import { region } from '@wf-core/state/region';
 
-// AlterationService
-// - alteration$
-// - displayAlteration(id: string);
-// - incrementAlteration();
-// - decrementAlteration();
-
-// NetworkPresenter
-// - presenters
-// - addFeature
-// - removeFeature
-// - updateFeature
-
-// marker tray - one for each prevailing angle
-// - prevailing angle
-// - size = # of lines
-// - positioning
-//   - project 180 deg from prevailing angle
-//   - calculated distance by summing projected length of all other trays
-
+/**
+ * Finds the bounds of all nodes in the system and calculates the center point
+ * @param system
+ */
 function getSystemCenter(system: System): Vector2 {
   const { minX, minY, maxX, maxY } = getBoundingBox(_map(system.nodes, 'position'));
   return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
+/**
+ * Primary container & entry point for the map rendering subsystem
+ */
 @Component({
   selector: 'wf-viewport',
   templateUrl: './viewport.component.html',
   styleUrls: ['./viewport.component.scss']
 })
-export class ViewportComponent {
+export class ViewportComponent implements OnDestroy {
+  // populated when the render target element is available
   renderTarget$ = new ReplaySubject<HTMLElement>(1);
   @ViewChild('viewport')
   private set renderTarget(ref: ElementRef) { this.renderTarget$.next(ref.nativeElement); }
@@ -67,9 +57,11 @@ export class ViewportComponent {
       height: window.innerHeight,
       width: window.innerWidth,
     })),
+    take(1),
     cacheValue(),
   );
 
+  // calculates how the system will fit onto the screen
   camera$ = this.stage$.pipe(
     map((stage) => new Camera(stage)),
     cacheValue(),
@@ -87,20 +79,37 @@ export class ViewportComponent {
     cacheValue(),
   );
 
-  constructor(public systemService: SystemService, private store: Store<WFState>,) {
+  private destroy$ = new Subject<void>();
+
+  constructor(public systemService: SystemService, private store: Store<WFState>) {
+    // Since everything in here is downstream of the render target, we don't run into any
+    // issues without waiting for ngOnInit
+
+    // refresh camera calculations when window resizes
     this.onResize$
-      .pipe(startWith(null), withSampleFrom(this.camera$, this.renderTarget$))
+      .pipe(
+        startWith(null),
+        withSampleFrom(this.camera$, this.renderTarget$),
+        takeUntil(this.destroy$),
+      )
       .subscribe(([, camera, renderTarget]) => {
         camera.imageSizePx.set({ x: renderTarget.clientWidth, y: renderTarget.clientHeight });
       });
 
+    // refresh display when camera parameters update
     this.camera$
-      .pipe(switchMap((camera) => camera.imageSizePx.$), withSampleFrom(this.stage$))
+      .pipe(
+        switchMap((camera) => camera.imageSizePx.$),
+        withSampleFrom(this.stage$),
+        takeUntil(this.destroy$),
+      )
       .subscribe(([imageSize, stage]) => {
         stage.size(imageSize);
         this.render();
       });
 
+    // TODO: everything below here would be abstracted out of here later
+    // render elements of the system when the viewport is ready
     chainRead(this.camera$, 'ready$')
       .pipe(withSampleFrom(this.stage$), take(1))
       .subscribe(([camera, stage]) => {
@@ -114,10 +123,12 @@ export class ViewportComponent {
         this.render();
       });
 
+    // reposition the camera to the center of the system and display debugging grid
     this.systemService.system$
       .pipe(
         filter(Boolean),
-        withSampleFrom(chainRead(this.camera$, 'ready$'))
+        withSampleFrom(chainRead(this.camera$, 'ready$')),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         error(thrown) { console.error(thrown); },
@@ -126,6 +137,11 @@ export class ViewportComponent {
           this.displayGrid();
         },
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   render() {

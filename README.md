@@ -1,5 +1,15 @@
 # Wayfinder
 
+(so far) PoC of a transit map rendering system, displaying a regional network over time.
+Each transit network "alteration" entries that represent changes to the system over time (new lines, service changes, extensions. etc).
+
+Code Notes:
+- `projects/wayfinder-core`: state, types, utilities, math
+- `projects/wayfinder-poc`: initial rendering system, primary entry point `lib/viewport/viewport.component`
+- `projects/wayfinder-ui`: (nothing here yet)
+
+## Angular Stuff
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.0.3.
 
 ## Development server
