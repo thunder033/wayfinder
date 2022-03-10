@@ -4,7 +4,7 @@ import Konva from 'konva';
 import { getSegments } from '../viewport/viewport-utils';
 import { Vector2 } from '@wf-core/math';
 import { Camera } from '../viewport/camera';
-import { FeaturePresenter } from './feature-presenter';
+import { FeaturePresenter, WFEvent } from './feature-presenter';
 import { select, Store } from '@ngrx/store';
 import { WFState } from '@wf-core/types/store';
 import { network } from '@wf-core/state/network';
@@ -63,9 +63,6 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
       ? new StationPresenter(camera, node as any, systemId, store)
       : new NodePresenter(camera, node, systemId, store) as any;
     NodePresenter.presenter[node.id] = presenter;
-    presenter.node$.pipe(filter((v) => !v)).subscribe(() => {
-      delete NodePresenter.presenter[node.id];
-    });
     return presenter as NodePresenter<WFNode<T>>;
   }
 
@@ -128,7 +125,11 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
 
   getLineNodeMarker(lineId: string): Renderable {
     if (!this.lineNodeMarkers[lineId]) {
-      this.lineNodeMarkers[lineId] = this.createLineNodeMarker();
+      const marker = this.createLineNodeMarker();
+      marker.on(WFEvent.Destroy, () => {
+        delete this.lineNodeMarkers[lineId];
+      });
+      this.lineNodeMarkers[lineId] = marker;
     }
 
     return this.lineNodeMarkers[lineId];
@@ -214,8 +215,14 @@ export class StationPresenter extends NodePresenter<Station> {
     this.label = new Konva.Text({ text: '' });
     this.renderable$$.next(this.label);
 
-    combineLatest([this.node$, this.labelPosition$]).subscribe(([{ name }, { x, y }]) => {
-      this.label?.text(name + ' (' + this.featureId + ')');
+    combineLatest([this.node$, this.labelPosition$]).subscribe(([node, { x, y }]) => {
+      if (!node) {
+        this.label?.hide();
+        return;
+      }
+
+      this.label?.show();
+      this.label?.text(node.name + ' (' + this.featureId + ')');
       this.label?.x(x);
       this.label?.y(y);
       this.label?.moveToTop();
@@ -225,7 +232,7 @@ export class StationPresenter extends NodePresenter<Station> {
 
   override createLineNodeMarker(): Renderable {
     const marker = new Konva.Circle({ ...STATION_MARKER_STYLE, ...STATION_MARKER_START_STYLE });
-    marker.on('present', () => {
+    marker.on(WFEvent.Present, () => {
       const tween = new Konva.Tween({
         node: marker,
         duration: 0.5,

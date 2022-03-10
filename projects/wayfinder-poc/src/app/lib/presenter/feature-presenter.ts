@@ -8,6 +8,11 @@ import { cacheValue } from '@wf-core/utils/rx-operators';
 
 // class AnimationController
 
+export enum WFEvent {
+  Present = 'present',
+  Destroy = 'destroy',
+}
+
 export abstract class FeaturePresenter<T extends FeatureType> {
   protected renderable$$ = new Subject<Renderable>();
   renderable$ = this.renderable$$.asObservable();
@@ -44,10 +49,11 @@ export abstract class FeaturePresenter<T extends FeatureType> {
       .reduce((out, item) => ({ ...out, [getId(item)]: getNewRenderable(item) }), {});
     // TODO: queue presentation of new renderables here
     Object.values(added).forEach((item) => this.renderable$$.next(item));
-    Object.values(added).forEach((item) => item.fire('present'));
+    Object.values(added).forEach((item) => item.fire(WFEvent.Present));
     Object.keys(inventory)
       .filter((signature) => !Object.keys(existing).includes(signature))
       .forEach((signature) => {
+        inventory[signature].fire(WFEvent.Destroy);
         inventory[signature].destroy();
         delete inventory[signature];
       });
