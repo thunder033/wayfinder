@@ -1,15 +1,5 @@
 import Konva from 'konva';
-import {
-  Connectable,
-  mapTo,
-  merge,
-  Observable,
-  startWith,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-} from 'rxjs';
+import { mapTo, merge, Observable, startWith, Subject, switchMap, take, takeUntil } from 'rxjs';
 
 import { Renderable } from '../types/presentation';
 import { cacheValue } from '../utils/rx-operators';
@@ -29,10 +19,6 @@ interface IAnimatable<T> {
   update$(properties: T): Observable<void>;
   teardown$(): Observable<void>;
 }
-
-// class Animatable<T> implements IAnimatable<T> {
-//
-// }
 
 interface WFAnimationParams<T extends Renderable> {
   renderable: T;
@@ -77,8 +63,3 @@ export class WFTween extends Konva.Tween {
     super.destroy();
   }
 }
-
-/**
- * Configure an wf-konva and
- */
-type WFAnimationFactory = <T extends Renderable>(params: WFAnimationParams<T>) => Connectable<void>;

@@ -1,74 +1,23 @@
-import { select, Store } from '@ngrx/store';
 import Konva from 'konva';
 import {
-  concatMap,
   combineLatest,
-  defer,
-  forkJoin,
-  Observable,
-  share,
-  shareReplay,
-  startWith,
-  Subject,
-  switchMap,
-  take,
-  map,
   concatAll,
   endWith,
   finalize,
-  ignoreElements,
-  ReplaySubject,
   fromEvent,
+  ignoreElements,
+  map,
+  Observable,
+  ReplaySubject,
+  startWith,
+  Subject,
   takeUntil,
 } from 'rxjs';
 
-import { network } from '@wf-core/state/network';
-import { FeatureType, NetworkFeatureByType } from '@wf-core/types/network-features';
-import { Renderable } from '@wf-core/types/presentation';
-import { WFState } from '@wf-core/types/store';
-import { cacheValue } from '@wf-core/utils/rx-operators';
-import { WFEvent, WFTween } from '@wf-core/wf-konva/wf-tween';
-
-function playTween$(tweens: WFTween[]): Observable<unknown> {
-  return forkJoin(
-    tweens.map((tween) =>
-      defer(() => {
-        tween.play();
-        return tween.onIdle$.pipe(take(1));
-      }),
-    ),
-  );
-}
-
-interface IWFAnimatable {
-  animation$: Observable<unknown>;
-  isIdle$: Observable<boolean>;
-}
-
-export function WFAnimatable<TBase extends Constructor>(base: TBase) {
-  return class extends base implements IWFAnimatable {
-    protected animation$$ = new Subject<WFTween[]>();
-    animation$ = this.animation$$.pipe(concatMap(playTween$), share());
-
-    isIdle$ = this.animation$$.pipe(
-      switchMap((tweens) =>
-        combineLatest(tweens.map((tween) => tween.isIdle$)).pipe(
-          map((...isIdleAll) => isIdleAll.every(Boolean)),
-        ),
-      ),
-      startWith(true),
-      shareReplay(),
-    );
-
-    protected queueTween(config: Konva.TweenConfig) {
-      const tween = new WFTween(config);
-      this.animation$$.next([tween]);
-      return tween;
-    }
-  };
-}
-
-WFAnimatable.base = () => WFAnimatable(class {});
+import { Renderable } from '../types/presentation';
+import { cacheValue } from '../utils/rx-operators';
+import { WFEvent } from '../wf-konva/wf-tween';
+import { IWFAnimatable, WFAnimatable } from './animatable';
 
 export abstract class BasePresenter extends WFAnimatable(EventTarget) {
   onDestroy$ = fromEvent(this, WFEvent.Destroy);
@@ -168,21 +117,5 @@ export abstract class BasePresenter extends WFAnimatable(EventTarget) {
       tapLog('inventory'),
       cacheValue(),
     );
-  }
-}
-
-export abstract class FeaturePresenter<T extends FeatureType> extends BasePresenter {
-  protected feature$: Observable<NetworkFeatureByType[T] | undefined> = this.store.pipe(
-    select(network.getFeature(this.featureId, this.featureType)),
-    cacheValue(false),
-  );
-
-  constructor(
-    public readonly featureId: string,
-    public readonly featureType: T,
-    protected store: Store<WFState>,
-  ) {
-    super();
-    this.feature$.subscribe();
   }
 }

@@ -4,6 +4,7 @@ import { Bind } from 'lodash-decorators';
 import { combineLatest, filter, forkJoin, map, Observable, of, switchMap, take } from 'rxjs';
 
 import { Vector2 } from '@wf-core/math';
+import { FeaturePresenter } from '@wf-core/render/feature-presenter';
 import { network } from '@wf-core/state/network';
 import { FeatureType, Line, Station, WFNode } from '@wf-core/types/network-features';
 import { WFState } from '@wf-core/types/store';
@@ -11,7 +12,6 @@ import { cacheValue } from '@wf-core/utils/rx-operators';
 
 import { Camera } from '../viewport/camera';
 import { getSegments } from '../viewport/viewport-utils';
-import { FeaturePresenter } from './feature-presenter';
 
 export const NODE_STYLE: Partial<Konva.CircleConfig> = {
   radius: 4,

@@ -63,8 +63,6 @@ export interface System extends NetworkFeature<FeatureType.System> {
   lines: Line[];
 }
 
-export type NetworkFeatureType = GeometryNode | Station | Segment | Service | Line | System;
-
 export type Dehydrated<T extends NetworkFeature> = {
   [K in keyof T]: T[K] extends Array<infer U>
     ? U extends NetworkFeature

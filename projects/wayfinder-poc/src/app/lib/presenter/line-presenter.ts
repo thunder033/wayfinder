@@ -3,6 +3,7 @@ import Konva from 'konva';
 import { combineLatest, map, mergeScan, Observable, switchMap } from 'rxjs';
 
 import { Vector2 } from '@wf-core/math';
+import { FeaturePresenter } from '@wf-core/render/feature-presenter';
 import { FeatureType, Line, Segment, WFNode } from '@wf-core/types/network-features';
 import { WFState } from '@wf-core/types/store';
 import { cacheValue, delayUntil } from '@wf-core/utils/rx-operators';
@@ -14,7 +15,6 @@ import {
   getSegments,
   LineNodeChunk,
 } from '../viewport/viewport-utils';
-import { FeaturePresenter } from './feature-presenter';
 import { LineNodePresenter } from './line-node-presenter';
 import { NodePresenter } from './node-presenter';
 

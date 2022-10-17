@@ -1,6 +1,9 @@
 import { Vector2Expression } from './geometry';
 import { Dehydrated, FeatureType, NetworkFeature } from './network-features';
 
+/**
+ * describes a change in the properties of a network feature
+ */
 export interface NetworkFeatureChange<T extends Dehydrated<NetworkFeature> = any> {
   featureId: string;
   featureType: FeatureType;
@@ -9,6 +12,9 @@ export interface NetworkFeatureChange<T extends Dehydrated<NetworkFeature> = any
   right: any;
 }
 
+/**
+ * A set of changes that represent a new network state
+ */
 export interface Alteration {
   id: string;
   date: string;

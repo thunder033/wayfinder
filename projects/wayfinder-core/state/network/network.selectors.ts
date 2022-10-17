@@ -20,6 +20,9 @@ function asDehydrated<T extends NetworkFeature>(input: any): Dehydrated<T> {
   return asNetworkFeature(input) as Dehydrated<T>;
 }
 
+/**
+ * Rebuild references in {@param input } to other features in {@param state}
+ */
 function getHydratedFeature<T extends NetworkFeature>(
   state: NetworkState,
   input: Dehydrated<T>,
@@ -69,6 +72,9 @@ const peekAlterationStack = createSelector(
   ({ alterationStack }) => alterationStack?.[alterationStack.length - 1],
 );
 
+/**
+ * Mapping of feature type to path in network state
+ */
 const FEATURE_PATH: { [type in FeatureType]: keyof NetworkFeatureState } = {
   [FeatureType.GeometryNode]: 'node',
   [FeatureType.Station]: 'node',
@@ -78,6 +84,7 @@ const FEATURE_PATH: { [type in FeatureType]: keyof NetworkFeatureState } = {
   [FeatureType.System]: 'system',
 };
 
+/** find and rebuild a hydrated network feature */
 const getFeature = <T extends FeatureType>(id: string, type: T) =>
   createSelector(
     getNetwork,

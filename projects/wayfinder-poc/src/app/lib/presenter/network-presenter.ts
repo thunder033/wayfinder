@@ -2,13 +2,13 @@ import { Store } from '@ngrx/store';
 import { Bind } from 'lodash-decorators';
 import { Observable, Subject } from 'rxjs';
 
+import { FeaturePresenter } from '@wf-core/render/feature-presenter';
 import { FeatureType, NetworkFeature } from '@wf-core/types/network-features';
 import { Renderable } from '@wf-core/types/presentation';
 import { WFState } from '@wf-core/types/store';
 
 import { SystemService } from '../system.service';
 import { Camera } from '../viewport/camera';
-import { FeaturePresenter } from './feature-presenter';
 import { LinePresenter } from './line-presenter';
 import { NodePresenter } from './node-presenter';
 
