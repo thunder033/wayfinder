@@ -1,22 +1,22 @@
+import { Store } from '@ngrx/store';
 import Konva from 'konva';
+import { combineLatest, map, mergeScan, Observable, switchMap } from 'rxjs';
 
+import { Vector2 } from '@wf-core/math';
 import { FeatureType, Line, Segment, WFNode } from '@wf-core/types/network-features';
+import { WFState } from '@wf-core/types/store';
+import { cacheValue, delayUntil } from '@wf-core/utils/rx-operators';
 
-import { FeaturePresenter } from './feature-presenter';
+import { Camera } from '../viewport/camera';
 import {
   asLinePoints,
   chunkLineNodes,
   getSegments,
   LineNodeChunk,
 } from '../viewport/viewport-utils';
-import { NodePresenter } from './node-presenter';
-import { combineLatest, map, mergeScan, Observable, switchMap } from 'rxjs';
-import { cacheValue, delayUntil } from '@wf-core/utils/rx-operators';
-import { Vector2 } from '@wf-core/math';
+import { FeaturePresenter } from './feature-presenter';
 import { LineNodePresenter } from './line-node-presenter';
-import { Camera } from '../viewport/camera';
-import { Store } from '@ngrx/store';
-import { WFState } from '@wf-core/types/store';
+import { NodePresenter } from './node-presenter';
 
 const LINE_STYLE: Partial<Konva.LineConfig> = {
   stroke: '#000',

@@ -1,5 +1,6 @@
-import { createAlteration, createFeature, dehydrate } from './data-utils';
 import { FeatureType, Mode, ServiceType } from '@wf-core/types/network-features';
+
+import { createAlteration, createFeature, dehydrate } from './data-utils';
 
 // Data set represent a chunk of the SF Bay BART System
 const westOakland = createFeature(FeatureType.Station, {
@@ -8,7 +9,7 @@ const westOakland = createFeature(FeatureType.Station, {
 });
 
 const oaklandWye = createFeature(FeatureType.GeometryNode, {
-  position: { x: 1, y: 0},
+  position: { x: 1, y: 0 },
 });
 
 const oakland12thSt = createFeature(FeatureType.Station, {
@@ -36,31 +37,15 @@ const node = { westOakland, oaklandWye, oakland12thSt, oakland19thSt, lakeMerrit
 const segment = {
   oaklandTransbay: createFeature(FeatureType.Segment, {
     mode: Mode.Metro,
-    nodes: [
-      westOakland,
-      oaklandWye,
-      oakland12thSt,
-      oakland19thSt,
-    ]
+    nodes: [westOakland, oaklandWye, oakland12thSt, oakland19thSt],
   }),
   oaklandEast: createFeature(FeatureType.Segment, {
     mode: Mode.Metro,
-    nodes: [
-      westOakland,
-      oaklandWye,
-      lakeMerritt,
-      fruitvale,
-    ]
+    nodes: [westOakland, oaklandWye, lakeMerritt, fruitvale],
   }),
   oaklandCentral: createFeature(FeatureType.Segment, {
     mode: Mode.Metro,
-    nodes: [
-      fruitvale,
-      lakeMerritt,
-      oaklandWye,
-      oakland12thSt,
-      oakland19thSt,
-    ]
+    nodes: [fruitvale, lakeMerritt, oaklandWye, oakland12thSt, oakland19thSt],
   }),
 };
 
@@ -114,9 +99,7 @@ const line = {
 
 export const bart = createFeature(FeatureType.System, {
   name: 'BART',
-  nodes: [
-    ...Object.values(node),
-  ],
+  nodes: [...Object.values(node)],
   lines: [...Object.values(line)],
 });
 

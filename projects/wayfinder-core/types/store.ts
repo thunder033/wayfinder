@@ -1,8 +1,8 @@
-import { Dehydrated, Line, Segment, Service, System, WFNode, WFNodeType } from './network-features';
 import { Network } from './network';
+import { Dehydrated, Line, Segment, Service, System, WFNode } from './network-features';
 
 export interface NetworkFeatureState {
-  node: { [id: string]: Dehydrated<WFNode<WFNodeType>> };
+  node: { [id: string]: Dehydrated<WFNode> };
   segment: { [id: string]: Dehydrated<Segment> };
   service: { [id: string]: Dehydrated<Service> };
   line: { [id: string]: Dehydrated<Line> };

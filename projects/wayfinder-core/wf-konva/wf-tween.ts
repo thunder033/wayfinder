@@ -1,3 +1,4 @@
+import Konva from 'konva';
 import {
   Connectable,
   mapTo,
@@ -9,7 +10,7 @@ import {
   take,
   takeUntil,
 } from 'rxjs';
-import Konva from 'konva';
+
 import { Renderable } from '../types/presentation';
 import { cacheValue } from '../utils/rx-operators';
 

@@ -1,5 +1,6 @@
-import { RegionState } from '../../types/store';
 import { createAction, createReducer, on, props } from '@ngrx/store';
+
+import { RegionState } from '../../types/store';
 
 export const regionDefaultState: RegionState = {
   alterationIndex: 0,

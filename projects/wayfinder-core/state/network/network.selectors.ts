@@ -1,4 +1,6 @@
-import { NetworkFeatureState, NetworkState, WFState } from '../../types/store';
+import { createSelector } from '@ngrx/store';
+
+import { getSegments } from '../../../wayfinder-poc/src/app/lib/viewport/viewport-utils';
 import {
   Dehydrated,
   FeatureType,
@@ -9,9 +11,8 @@ import {
   Service,
   System,
 } from '../../types/network-features';
+import { NetworkFeatureState, NetworkState, WFState } from '../../types/store';
 import { asNetworkFeature } from '../../utils/network-feature.utils';
-import { createSelector } from '@ngrx/store';
-import { getSegments } from '../../../wayfinder-poc/src/app/lib/viewport/viewport-utils';
 
 const getNetwork = (state: WFState) => state.network;
 

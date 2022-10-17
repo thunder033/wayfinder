@@ -1,3 +1,5 @@
+import { select, Store } from '@ngrx/store';
+import Konva from 'konva';
 import {
   concatMap,
   combineLatest,
@@ -18,24 +20,24 @@ import {
   ReplaySubject,
   fromEvent,
   takeUntil,
-  filter,
 } from 'rxjs';
-import { FeatureType, NetworkFeatureByType } from '@wf-core/types/network-features';
-import { WFState } from '@wf-core/types/store';
-import { select, Store } from '@ngrx/store';
+
 import { network } from '@wf-core/state/network';
-import { cacheValue } from '@wf-core/utils/rx-operators';
-import Konva from 'konva';
-import { WFEvent, WFTween } from '@wf-core/wf-konva/wf-tween';
+import { FeatureType, NetworkFeatureByType } from '@wf-core/types/network-features';
 import { Renderable } from '@wf-core/types/presentation';
+import { WFState } from '@wf-core/types/store';
+import { cacheValue } from '@wf-core/utils/rx-operators';
+import { WFEvent, WFTween } from '@wf-core/wf-konva/wf-tween';
 
 function playTween$(tweens: WFTween[]): Observable<unknown> {
-  return forkJoin(tweens.map((tween) => defer(
-    () => {
-      tween.play();
-      return tween.onIdle$.pipe(take(1));
-    })
-  ));
+  return forkJoin(
+    tweens.map((tween) =>
+      defer(() => {
+        tween.play();
+        return tween.onIdle$.pipe(take(1));
+      }),
+    ),
+  );
 }
 
 interface IWFAnimatable {
@@ -46,16 +48,13 @@ interface IWFAnimatable {
 export function WFAnimatable<TBase extends Constructor>(base: TBase) {
   return class extends base implements IWFAnimatable {
     protected animation$$ = new Subject<WFTween[]>();
-    animation$ = this.animation$$.pipe(
-      concatMap(playTween$),
-      share(),
-    );
+    animation$ = this.animation$$.pipe(concatMap(playTween$), share());
 
     isIdle$ = this.animation$$.pipe(
       switchMap((tweens) =>
         combineLatest(tweens.map((tween) => tween.isIdle$)).pipe(
           map((...isIdleAll) => isIdleAll.every(Boolean)),
-        )
+        ),
       ),
       startWith(true),
       shareReplay(),
@@ -109,7 +108,7 @@ export abstract class BasePresenter extends WFAnimatable(EventTarget) {
       map(() => {
         this.rootNode.add(renderable);
         return renderable;
-      })
+      }),
     );
   }
 

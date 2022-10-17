@@ -1,6 +1,7 @@
 // have to import this Node because the namespaced one has no generic
-import { Node } from 'konva/lib/Node';
 import Konva from 'konva';
+import { Node } from 'konva/lib/Node';
+
 import { Vector2 } from '../math';
 
 export type TweenOptions<C extends Konva.NodeConfig, T extends Node<C>> = {

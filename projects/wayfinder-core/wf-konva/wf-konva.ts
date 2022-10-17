@@ -1,6 +1,7 @@
-import { WFEvent, WFEventType } from './wf-tween';
-import { fromEvent, Observable } from 'rxjs';
 import Konva from 'konva';
+import { fromEvent, Observable } from 'rxjs';
+
+import { WFEvent, WFEventType } from './wf-tween';
 
 export namespace WFKonva {
   export function on$<T extends WFEvent>(target: Konva.Node, event: T): Observable<WFEventType[T]> {

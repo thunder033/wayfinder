@@ -1,13 +1,15 @@
-import { WFAnimatable, BasePresenter } from './feature-presenter';
+import Konva from 'konva';
 import { combineLatest, filter, map, Observable, switchMap, take, tap } from 'rxjs';
-import { cacheValue, toggleBy } from '@wf-core/utils/rx-operators';
-import { NODE_STYLE, NodePresenter } from './node-presenter';
+
 import { Vector2 } from '@wf-core/math';
 import { FeatureType, WFNode } from '@wf-core/types/network-features';
-import { Camera } from '../viewport/camera';
-import Konva from 'konva';
-import { WFEvent } from '@wf-core/wf-konva/wf-tween';
+import { cacheValue, toggleBy } from '@wf-core/utils/rx-operators';
 import { WFKonva } from '@wf-core/wf-konva/wf-konva';
+import { WFEvent } from '@wf-core/wf-konva/wf-tween';
+
+import { Camera } from '../viewport/camera';
+import { WFAnimatable, BasePresenter } from './feature-presenter';
+import { NODE_STYLE, NodePresenter } from './node-presenter';
 
 export const STATION_MARKER_STYLE: Partial<Konva.CircleConfig> = {
   ...NODE_STYLE,
@@ -31,29 +33,32 @@ class LineNodeMarker extends WFAnimatable(Konva.Group) {
   constructor(private node$: Observable<Nullable<WFNode>>) {
     super();
     this.add(this.stationMarker);
-    WFKonva.on$(this, WFEvent.Present).pipe(
-      toggleBy(this.isStation$),
-      tap(() => {
-        console.log('present line node');
-        this.queueTween({
-          node: this.stationMarker,
-          duration: 0.5,
-          ...STATION_MARKER_STYLE
-        });
-      }),
-    )
+    WFKonva.on$(this, WFEvent.Present)
+      .pipe(
+        toggleBy(this.isStation$),
+        tap(() => {
+          console.log('present line node');
+          this.queueTween({
+            node: this.stationMarker,
+            duration: 0.5,
+            ...STATION_MARKER_STYLE,
+          });
+        }),
+      )
       .subscribe();
-    WFKonva.on$(this, WFEvent.Destroy).pipe(
-      toggleBy(this.isStation$),
-      tap(({ teardown$$ }) => {
-        const tween = this.queueTween({
-          node: this.stationMarker,
-          duration: 0.5,
-          radius: 0,
-        });
-        teardown$$.next(tween.onIdle$.pipe(take(1)));
-      }),
-    ).subscribe();
+    WFKonva.on$(this, WFEvent.Destroy)
+      .pipe(
+        toggleBy(this.isStation$),
+        tap(({ teardown$$ }) => {
+          const tween = this.queueTween({
+            node: this.stationMarker,
+            duration: 0.5,
+            radius: 0,
+          });
+          teardown$$.next(tween.onIdle$.pipe(take(1)));
+        }),
+      )
+      .subscribe();
   }
 }
 
@@ -89,7 +94,7 @@ export class LineNodePresenter extends BasePresenter {
   constructor(
     private nodePresenter: NodePresenter<WFNode>,
     private camera: Camera,
-    private lineId: string
+    private lineId: string,
   ) {
     super();
     this.screenPosition$.subscribe((position) => {

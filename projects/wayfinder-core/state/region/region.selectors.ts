@@ -1,4 +1,5 @@
 import { createSelector } from '@ngrx/store';
+
 import { WFState } from '../../types/store';
 import { network } from '../network';
 
@@ -14,13 +15,13 @@ const getNextAlteration = createSelector(
   getRegion,
   network.peekAlterationStack,
   (region, alterationId) => {
-    if(!alterationId) {
+    if (!alterationId) {
       return region.network?.ledger[0];
     }
 
     const currentIndex = region.network?.ledger.findIndex(({ id }) => id === alterationId);
     return Number.isFinite(currentIndex) ? region.network?.ledger[currentIndex! + 1] : null;
-  }
+  },
 );
 
 export const regionSelectors = {
