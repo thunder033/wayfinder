@@ -1,10 +1,9 @@
 import { FeatureType, Line, Station, WFNode } from '@wf-core/types/network-features';
-import { Renderable } from '../viewport/viewport.types';
 import Konva from 'konva';
 import { getSegments } from '../viewport/viewport-utils';
 import { Vector2 } from '@wf-core/math';
 import { Camera } from '../viewport/camera';
-import { FeaturePresenter, WFEvent } from './feature-presenter';
+import { FeaturePresenter } from './feature-presenter';
 import { select, Store } from '@ngrx/store';
 import { WFState } from '@wf-core/types/store';
 import { network } from '@wf-core/state/network';
@@ -12,19 +11,8 @@ import { combineLatest, filter, forkJoin, map, Observable, of, switchMap, take }
 import { cacheValue } from '@wf-core/utils/rx-operators';
 import { Bind } from 'lodash-decorators';
 
-const NODE_STYLE: Partial<Konva.CircleConfig> = {
+export const NODE_STYLE: Partial<Konva.CircleConfig> = {
   radius: 4,
-};
-
-const STATION_MARKER_STYLE: Partial<Konva.CircleConfig> = {
-  ...NODE_STYLE,
-  fill: '#fff',
-  stroke: '#333',
-  strokeWidth: 1,
-};
-
-const STATION_MARKER_START_STYLE: Partial<Konva.CircleConfig> = {
-  radius: 0,
 };
 
 interface MarkerTray {
@@ -38,12 +26,13 @@ function addLine(tray: MarkerTray, line: Line, angle: number): MarkerTray {
     : { angle, lineIds: [line.id]};
 }
 
+// will be used by line node presenter
 function getTrayOffset(angle: number, markerTrays: MarkerTray[]): number {
   const u = new Vector2(Math.cos(angle), Math.sin(angle));
   return markerTrays.reduce((offset, tray) => {
     const width = tray.lineIds.length * NODE_STYLE.radius!;
     const b = new Vector2(Math.cos(angle) * width, Math.sin(angle) * width);
-    console.log(angle, { b, u, width, dot: b.magnitude() });
+    // console.log(angle, { b, u, width, dot: b.magnitude() });
     return offset + Vector2.project(b, u).magnitude() / 2;
   }, 0);
 }
@@ -70,9 +59,7 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
     return NodePresenter.presenter[id];
   }
 
-  private lineNodeMarkers: {[lineId: string]: Renderable} = {};
-
-  node$: Observable<T> = this.feature$;
+  node$: Observable<Nullable<T>> = this.feature$;
 
   nodeLines$: Observable<Line[]> = this.store.pipe(
     select(network.getSystem(this.systemId)),
@@ -105,8 +92,8 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
       const labelOffset = sign * ((markerCount / 2 + 1) * (radius * 2) - radius);
 
       const u = new Vector2(-Math.sin(tray.angle), Math.cos(tray.angle));
-      return this.camera.project(node.position)
-        .add(u.scale(labelOffset).multiply({ x: 1, y: - 1}));
+      return this.camera.project(node!.position)
+        .add(u.scale(labelOffset).multiply({ x: 1, y: - 1 }));
     }),
     cacheValue(),
   );
@@ -119,48 +106,6 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
   ) {
     super(node.id, node.type, store);
     this.nodeLines$.subscribe();
-  }
-
-  initialize(node: T): void {}
-
-  getLineNodeMarker(lineId: string): Renderable {
-    if (!this.lineNodeMarkers[lineId]) {
-      const marker = this.createLineNodeMarker();
-      marker.on(WFEvent.Destroy, () => {
-        delete this.lineNodeMarkers[lineId];
-      });
-      this.lineNodeMarkers[lineId] = marker;
-    }
-
-    return this.lineNodeMarkers[lineId];
-  }
-
-  getLineVertexPosition$(lineId: string): Observable<Vector2> {
-    return combineLatest([this.markerTrays$, this.node$, this.camera.update$]).pipe(
-      filter(([markerTrays, node]) => !!node && !!markerTrays.find((tray) => tray.lineIds.includes(lineId))),
-      map(([markerTrays, node]) => {
-        const lineTray = markerTrays.find((tray) => tray.lineIds.includes(lineId))!;
-        const trayOffset = getTrayOffset(lineTray.angle, markerTrays);
-        const radius = NODE_STYLE.radius!;
-
-        const sign = lineTray.angle < 0 ? -1 : 1;
-        const markerCount = lineTray.lineIds.length;
-        const markerIndex = lineTray.lineIds.indexOf(lineId);
-        const markerOffset = sign * ((markerIndex + 1 - markerCount / 2) * (radius * 2) - radius);
-
-        const u = new Vector2(-Math.sin(lineTray.angle), Math.cos(lineTray.angle));
-        return this.camera.project(node.position)
-          .add(u.scale(markerOffset).multiply({ x: 1, y: - 1}));
-      }),
-    );
-  }
-
-  presentMarker(lineId: string) {
-    this.getLineNodeMarker(lineId).show();
-  }
-
-  protected createLineNodeMarker(): Renderable {
-    return new Konva.Group();
   }
 
   @Bind()
@@ -193,8 +138,8 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
         const sign = <-1 | 0 | 1>Math.sign(sharedLeftNodeLines.length - sharedRightNodeLines.length);
         return ({
           [-1]: angleRight,
-          [1]: angleLeft,
           [0]: (angleLeft + angleRight) / 2 - (Math.PI / 2),
+          [1]: angleLeft,
         })[sign];
       }),
     );
@@ -226,27 +171,7 @@ export class StationPresenter extends NodePresenter<Station> {
       this.label?.x(x);
       this.label?.y(y);
       this.label?.moveToTop();
-      this.update$$.next();
+      this.onUpdate$$.next();
     });
-  }
-
-  override createLineNodeMarker(): Renderable {
-    const marker = new Konva.Circle({ ...STATION_MARKER_STYLE, ...STATION_MARKER_START_STYLE });
-    marker.on(WFEvent.Present, () => {
-      const tween = new Konva.Tween({
-        node: marker,
-        duration: 0.5,
-        ...STATION_MARKER_STYLE,
-      });
-      tween.play();
-    });
-    return marker;
-  }
-
-
-  override presentMarker(lineId: string) {
-    super.presentMarker(lineId);
-    const marker = this.getLineNodeMarker(lineId);
-    // TODO start animation here
   }
 }

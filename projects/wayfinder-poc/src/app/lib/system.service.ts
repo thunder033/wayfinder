@@ -167,7 +167,7 @@ export class SystemService {
 
   applyNextAlteration() {
     this.store$
-      .pipe(select(region.getNextAlteration), take(1), logOut('alteration'), filter(Boolean))
+      .pipe(select(region.getNextAlteration), take(1), tapLog('alteration'), filter(Boolean))
       .subscribe({
         error: (thrown) => console.error(thrown),
         next: (alteration) => this.store$.dispatch(network.applyAlteration(alteration))

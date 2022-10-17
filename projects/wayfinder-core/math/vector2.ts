@@ -18,6 +18,13 @@ export class Vector2 implements Vector2Expression {
     return a.clone().scale(Vector2.dot(a, b) / a.magnitude());
   }
 
+  static interpolate(a: Vector2, b: Vector2, position: number) {
+    return new Vector2(
+      a.x + (b.x - a.x) * position,
+      a.y + (b.y - a.y) * position
+    );
+  }
+
   static from(expression: Vector2Expression): Vector2 {
     return new Vector2(expression.x, expression.y);
   }

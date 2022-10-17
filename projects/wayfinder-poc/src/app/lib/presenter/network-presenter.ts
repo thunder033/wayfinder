@@ -2,13 +2,13 @@ import { SystemService } from '../system.service';
 import { FeaturePresenter } from './feature-presenter';
 import { Camera } from '../viewport/camera';
 import { Observable, Subject } from 'rxjs';
-import { Renderable } from '../viewport/viewport.types';
 import { NodePresenter } from './node-presenter';
 import { LinePresenter } from './line-presenter';
 import { Bind } from 'lodash-decorators';
 import { FeatureType, NetworkFeature } from '@wf-core/types/network-features';
 import { Store } from '@ngrx/store';
 import { WFState } from '@wf-core/types/store';
+import { Renderable } from '@wf-core/types/presentation';
 
 export class NetworkPresenter {
   private presenters: {[featureId: string]: FeaturePresenter<FeatureType> } = {};
@@ -30,7 +30,8 @@ export class NetworkPresenter {
         .forEach((node) => {
           const presenter = NodePresenter.create(camera, node, system.id, this.store);
           presenter.renderable$.subscribe(this.pushRenderable);
-          this.bubbleUpdate(presenter.update$);
+          presenter.animation$.subscribe();
+          this.bubbleUpdate(presenter.onUpdate$);
           presenter.initialize(node);
           this.presenters[node.id] = presenter;
         });
@@ -38,9 +39,10 @@ export class NetworkPresenter {
       system.lines
         .filter(this.requiresPresenter)
         .forEach((line) => {
-          const presenter = new LinePresenter(line.id, line.type, this.store);
+          const presenter = new LinePresenter(camera, line.id, this.store);
           presenter.renderable$.subscribe(this.pushRenderable);
-          this.bubbleUpdate(presenter.update$);
+          presenter.animation$.subscribe();
+          this.bubbleUpdate(presenter.onUpdate$);
           presenter.initialize();
           this.presenters[line.id] = presenter;
         });

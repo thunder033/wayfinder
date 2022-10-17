@@ -1,6 +1,6 @@
 import { Vector2 } from '@wf-core/math';
 import Konva from 'konva';
-import { combineLatest, filter, mapTo, merge, Observable, share, take } from 'rxjs';
+import { combineLatest, filter, map, mapTo, merge, Observable, share, take } from 'rxjs';
 import { cacheValue } from '@wf-core/utils/rx-operators';
 
 export class Camera {
@@ -30,11 +30,34 @@ export class Camera {
     );
   }
 
+  panTo(dest: Vector2, params: { durationMs?: number } = {}) {
+    const start = this.position.clone();
+    const durationMs = params?.durationMs || 500;
+    const animation = new Konva.Animation((frame) => {
+      if (!frame) {
+        return;
+      }
+
+      const timeMs = frame.time;
+      if (timeMs > durationMs) {
+        animation.stop();
+      }
+
+      this.position.set(Vector2.interpolate(start, dest, timeMs / durationMs));
+    });
+
+    animation.start();
+  }
+
   project(point: Vector2.Expression): Vector2 {
     return Vector2.from(point)
       .sub(this.position)
       .multiply(this.positionScale)
       .add(this.imageOriginPx);
+  }
+
+  project$(point: Vector2.Expression): Observable<Vector2> {
+    return this.update$.pipe(map(() => this.project(point)));
   }
 
   toString() {

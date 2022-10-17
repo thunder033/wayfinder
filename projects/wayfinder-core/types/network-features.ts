@@ -14,7 +14,7 @@ export interface NetworkFeature<T extends FeatureType = FeatureType> {
   readonly type: T;
 }
 
-export interface WFNode<T extends FeatureType> extends NetworkFeature<T> {
+export interface WFNode<T extends FeatureType = WFNodeType> extends NetworkFeature<T> {
   position: Vector2Expression;
 }
 

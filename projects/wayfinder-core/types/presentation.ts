@@ -20,3 +20,5 @@ export type TweenOptions<C extends Konva.NodeConfig, T extends Node<C>> = { [key
   x?: number;
   y?: number;
 }
+
+export type Renderable = Konva.Shape | Konva.Group;

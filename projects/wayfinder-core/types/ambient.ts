@@ -11,6 +11,8 @@ declare global {
         : never
 
   type Inventory<T> = {[id: string]: T};
+  type Nullable<T> = T | undefined | null;
+  type Constructor = new (...args: any[]) => {};
 }
 
 export {};

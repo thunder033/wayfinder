@@ -10,7 +10,7 @@ export function toDeg(rad: number): number {
   return rad / Math.PI * 180;
 }
 
-export function getSegments(line: Line): Segment[] {
+export function getSegments(line: Nullable<Line>): Segment[] {
   return line?.services.map(({ segments }) => segments).flat() ?? [];
 }
 
@@ -23,7 +23,7 @@ function getChunkSignature(nodes: WFNode<WFNodeType>[]): string {
   return nodes.filter(Boolean).map(({ id }) => id).join('::');
 }
 
-export function chunkLineNodes(line: Line): LineNodeChunk[] {
+export function chunkLineNodes(line: Nullable<Line>): LineNodeChunk[] {
   return getSegments(line).reduce(
     (chunks: LineNodeChunk[], segment: Segment) => {
       const head = chunks.pop();

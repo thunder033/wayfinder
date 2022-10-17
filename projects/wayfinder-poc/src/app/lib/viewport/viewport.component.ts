@@ -89,10 +89,11 @@ export class ViewportComponent implements OnDestroy {
     this.onResize$
       .pipe(
         startWith(null),
-        withSampleFrom(this.camera$, this.renderTarget$),
+        withSampleFrom(this.camera$, this.renderTarget$, this.stage$),
         takeUntil(this.destroy$),
       )
-      .subscribe(([, camera, renderTarget]) => {
+      .subscribe(([, camera, renderTarget, stage]) => {
+        stage.width(window.innerWidth).height(window.innerHeight);
         camera.imageSizePx.set({ x: renderTarget.clientWidth, y: renderTarget.clientHeight });
       });
 
@@ -133,7 +134,7 @@ export class ViewportComponent implements OnDestroy {
       .subscribe({
         error(thrown) { console.error(thrown); },
         next: ([system, camera]) => {
-          camera.position.set(getSystemCenter(system));
+          camera.panTo(getSystemCenter(system));
           this.displayGrid();
         },
       });
