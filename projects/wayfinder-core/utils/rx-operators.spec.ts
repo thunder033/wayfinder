@@ -1,10 +1,11 @@
 import { Observable, Observer, Subject } from 'rxjs';
 import { delayUntil } from './rx-operators';
 
-class TestObserver<T> implements Observer<T>{
+class TestObserver<T> implements Observer<T> {
   static observe<T>(source$: Observable<T>) {
     const obs = new TestObserver();
     source$.subscribe(obs);
+
     return obs;
   }
 
@@ -18,8 +19,7 @@ class TestObserver<T> implements Observer<T>{
     console.error(err);
   }
 
-  complete(): void {
-  }
+  complete(): void {}
 
   emissions(): T[] {
     return this.spy.mock.calls.map((call) => call[0]);
@@ -45,7 +45,7 @@ describe('Rx Operators', () => {
         'before signal 1',
         'before signal 2 ',
         'after signal 1',
-        'after signal 2'
+        'after signal 2',
       ]);
     });
   });

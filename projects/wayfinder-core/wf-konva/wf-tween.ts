@@ -1,4 +1,14 @@
-import { Connectable, mapTo, merge, Observable, startWith, Subject, switchMap, take, takeUntil } from 'rxjs';
+import {
+  Connectable,
+  mapTo,
+  merge,
+  Observable,
+  startWith,
+  Subject,
+  switchMap,
+  take,
+  takeUntil,
+} from 'rxjs';
 import Konva from 'konva';
 import { Renderable } from '../types/presentation';
 import { cacheValue } from '../utils/rx-operators';
@@ -9,8 +19,8 @@ export enum WFEvent {
 }
 
 export interface WFEventType {
-  [WFEvent.Present]: object
-  [WFEvent.Destroy]: { teardown$$: Subject<Observable<unknown>> }
+  [WFEvent.Present]: object;
+  [WFEvent.Destroy]: { teardown$$: Subject<Observable<unknown>> };
 }
 
 interface IAnimatable<T> {

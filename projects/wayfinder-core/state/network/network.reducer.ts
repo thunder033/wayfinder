@@ -27,10 +27,10 @@ export const networkReducer = createReducer(
   on(networkActions.restore, (_, { state }) => ({ ...state })),
   on(networkActions.applyAlteration, (state, alteration) => ({
     ...applyChanges(
-      applyAdditions(
-        applyRemovals(state, alteration.removals),
-        alteration.additions),
-      alteration.changes, 'right'),
+      applyAdditions(applyRemovals(state, alteration.removals), alteration.additions),
+      alteration.changes,
+      'right',
+    ),
     alterationStack: [...state.alterationStack, alteration.id],
   })),
   on(networkActions.rollBackAlteration, (state, alteration) => {
@@ -46,10 +46,10 @@ export const networkReducer = createReducer(
 
     const out = {
       ...applyChanges(
-        applyAdditions(
-          applyRemovals(state, alteration.additions),
-          alteration.removals),
-        alteration.changes, 'left'),
+        applyAdditions(applyRemovals(state, alteration.additions), alteration.removals),
+        alteration.changes,
+        'left',
+      ),
       alterationStack: state.alterationStack.slice(0, -1),
     };
 
@@ -60,20 +60,26 @@ export const networkReducer = createReducer(
 );
 
 function applyAdditions(state: NetworkState, additions: NetworkFeature[]): NetworkState {
-  return additions.reduce((out, addition) => ({
-    ...out,
-    [getKey(addition)]: {
-      ...out[getKey(addition)],
-      [addition.id]: addition,
-    },
-  }), state);
+  return additions.reduce(
+    (out, addition) => ({
+      ...out,
+      [getKey(addition)]: {
+        ...out[getKey(addition)],
+        [addition.id]: addition,
+      },
+    }),
+    state,
+  );
 }
 
 function applyRemovals(state: NetworkState, removals: NetworkFeature[]): NetworkState {
-  return removals.reduce((out, removal) => ({
-    ...out,
-    [getKey(removal)]: omit(out[getKey(removal)], removal.id),
-  }), state);
+  return removals.reduce(
+    (out, removal) => ({
+      ...out,
+      [getKey(removal)]: omit(out[getKey(removal)], removal.id),
+    }),
+    state,
+  );
 }
 
 function omitAt<T extends object>(target: T, path: (string | number)[]): T {
@@ -103,30 +109,30 @@ function applyChanges(
     const key = getKey({ type: change.featureType });
     const feature = out[key][change.featureId];
     if (typeof change[side] === 'undefined') {
-      return ({
+      return {
         ...out,
         [key]: { ...out[key], [feature.id]: omitAt(feature, change.path) },
-      });
+      };
     }
-    return ({
+    return {
       ...out,
       [key]: {
         ...out[key],
         [feature.id]: {
           ...set(cloneDeep(feature), change.path, change[side]),
-        }
-      }
-    });
+        },
+      },
+    };
   }, state);
 }
 
 function getKey(feature: { type: FeatureType }): keyof NetworkFeatureState {
-  return ({
+  return {
     [FeatureType.Station]: 'node' as const,
     [FeatureType.Segment]: 'segment' as const,
     [FeatureType.Line]: 'line' as const,
     [FeatureType.Service]: 'service' as const,
     [FeatureType.System]: 'system' as const,
     [FeatureType.GeometryNode]: 'node' as const,
-  })[feature.type];
+  }[feature.type];
 }

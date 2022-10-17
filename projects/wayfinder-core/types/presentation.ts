@@ -3,7 +3,9 @@ import { Node } from 'konva/lib/Node';
 import Konva from 'konva';
 import { Vector2 } from '../math';
 
-export type TweenOptions<C extends Konva.NodeConfig, T extends Node<C>> = { [key in keyof C]?: C[key] } & {
+export type TweenOptions<C extends Konva.NodeConfig, T extends Node<C>> = {
+  [key in keyof C]?: C[key];
+} & {
   /** In *seconds* (not ms) */
   duration: number;
   /** DMActor position (not Konva local X/Y) */
@@ -19,6 +21,6 @@ export type TweenOptions<C extends Konva.NodeConfig, T extends Node<C>> = { [key
   /** Konva local X/Y */
   x?: number;
   y?: number;
-}
+};
 
 export type Renderable = Konva.Shape | Konva.Group;

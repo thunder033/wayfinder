@@ -19,10 +19,7 @@ export class Vector2 implements Vector2Expression {
   }
 
   static interpolate(a: Vector2, b: Vector2, position: number) {
-    return new Vector2(
-      a.x + (b.x - a.x) * position,
-      a.y + (b.y - a.y) * position
-    );
+    return new Vector2(a.x + (b.x - a.x) * position, a.y + (b.y - a.y) * position);
   }
 
   static from(expression: Vector2Expression): Vector2 {
@@ -31,11 +28,19 @@ export class Vector2 implements Vector2Expression {
 
   protected readonly buffer: [number, number] = [0, 0];
 
-  get x() { return this.buffer[0]; }
-  get y() { return this.buffer[1]; }
+  get x() {
+    return this.buffer[0];
+  }
+  get y() {
+    return this.buffer[1];
+  }
 
-  get width() { return this.buffer[0]; }
-  get height() { return this.buffer[1]; }
+  get width() {
+    return this.buffer[0];
+  }
+  get height() {
+    return this.buffer[1];
+  }
 
   constructor(x: number, y: number, isConst = false) {
     this.buffer[0] = x;

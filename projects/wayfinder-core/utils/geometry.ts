@@ -9,10 +9,13 @@ export function getBoundingBox(points: Vector2.Expression[]): BoundingBox {
     maxY: Number.NEGATIVE_INFINITY,
   };
 
-  return points.filter(Boolean).reduce((box, point) => ({
-    minX: Math.min(box.minX, point.x),
-    minY: Math.min(box.minY, point.y),
-    maxX: Math.max(box.maxX, point.x),
-    maxY: Math.max(box.maxY, point.y),
-  }), box);
+  return points.filter(Boolean).reduce(
+    (box, point) => ({
+      minX: Math.min(box.minX, point.x),
+      minY: Math.min(box.minY, point.y),
+      maxX: Math.max(box.maxX, point.x),
+      maxY: Math.max(box.maxY, point.y),
+    }),
+    box,
+  );
 }

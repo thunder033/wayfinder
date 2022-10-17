@@ -15,7 +15,7 @@ export interface NetworkMetaState {
 
 export type NetworkState = NetworkFeatureState & NetworkMetaState;
 
-export type WFState = { network: NetworkState, region: RegionState };
+export type WFState = { network: NetworkState; region: RegionState };
 
 export interface RegionState {
   network: Network | null;

@@ -40,7 +40,7 @@ export interface Segment extends NetworkFeature<FeatureType.Segment> {
 
 export enum ServiceType {
   Standard = 'standard',
-  Limited = 'limited'
+  Limited = 'limited',
 }
 
 export interface Service extends NetworkFeature<FeatureType.Service> {
@@ -71,9 +71,9 @@ export type Dehydrated<T extends NetworkFeature> = {
       ? string[]
       : U[]
     : T[K] extends NetworkFeature
-      ? string
-      : T[K]
-}
+    ? string
+    : T[K];
+};
 
 export interface NetworkFeatureByType {
   [FeatureType.GeometryNode]: GeometryNode;
