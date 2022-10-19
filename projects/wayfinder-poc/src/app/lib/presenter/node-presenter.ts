@@ -56,7 +56,7 @@ export class NodePresenter<T extends WFNode<any>> extends FeaturePresenter<T['ty
     return presenter as NodePresenter<WFNode<T>>;
   }
 
-  static get<T extends WFNode<any>>(id: string): NodePresenter<T> {
+  static get<T extends WFNode>(id: string): NodePresenter<T> {
     return NodePresenter.presenter[id];
   }
 

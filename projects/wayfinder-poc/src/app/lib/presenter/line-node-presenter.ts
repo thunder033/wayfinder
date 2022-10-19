@@ -23,7 +23,7 @@ export const STATION_MARKER_START_STYLE: Partial<Konva.CircleConfig> = {
   radius: 0,
 };
 
-class LineNodeMarker extends WFAnimatable(Konva.Group) {
+class LineNodeMarker extends WFKonva.Extended(WFAnimatable(Konva.Group)) {
   isStation$ = this.node$.pipe(
     map((node) => node?.type === FeatureType.Station),
     cacheValue(),
@@ -34,7 +34,7 @@ class LineNodeMarker extends WFAnimatable(Konva.Group) {
   constructor(private node$: Observable<Nullable<WFNode>>) {
     super();
     this.add(this.stationMarker);
-    WFKonva.on$(this, WFEvent.Present)
+    this.on$(WFEvent.Present)
       .pipe(
         toggleBy(this.isStation$),
         tap(() => {
@@ -46,7 +46,7 @@ class LineNodeMarker extends WFAnimatable(Konva.Group) {
         }),
       )
       .subscribe();
-    WFKonva.on$(this, WFEvent.Destroy)
+    this.on$(WFEvent.Destroy)
       .pipe(
         toggleBy(this.isStation$),
         tap(({ teardown$$ }) => {

@@ -1,20 +1,18 @@
 import { Store } from '@ngrx/store';
 import Konva from 'konva';
-import { combineLatest, map, mergeScan, Observable, switchMap } from 'rxjs';
+import { combineLatest, filter, map, mergeScan, Observable, switchMap } from 'rxjs';
 
 import { Vector2 } from '@wf-core/math';
+import { WFAnimatable } from '@wf-core/render/animatable';
 import { FeaturePresenter } from '@wf-core/render/feature-presenter';
+import { networkSelectors } from '@wf-core/state/network/network.selectors';
 import { FeatureType, Line, Segment, WFNode } from '@wf-core/types/network-features';
 import { WFState } from '@wf-core/types/store';
 import { cacheValue, delayUntil } from '@wf-core/utils/rx-operators';
+import { WFKonva } from '@wf-core/wf-konva/wf-konva';
 
 import { Camera } from '../viewport/camera';
-import {
-  asLinePoints,
-  chunkLineNodes,
-  getSegments,
-  LineNodeChunk,
-} from '../viewport/viewport-utils';
+import { asLinePoints, getSegments } from '../viewport/viewport-utils';
 import { LineNodePresenter } from './line-node-presenter';
 import { NodePresenter } from './node-presenter';
 
@@ -27,6 +25,7 @@ const LINE_STYLE: Partial<Konva.LineConfig> = {
   shadowOffset: { x: 1, y: 0 },
   shadowEnabled: true,
   shadowForStrokeEnabled: true,
+  lineCap: 'round',
 };
 
 type KLineInventory = { [signature: string]: Konva.Line };
@@ -40,25 +39,48 @@ function getNodes(line: Nullable<Line>): NodeInventory {
     .reduce((out, node) => ({ ...out, [node.id]: node }), {});
 }
 
+class LineDisplaySegment extends WFKonva.Extended(WFAnimatable(Konva.Line)) {
+  constructor(
+    private segment$: Observable<Nullable<Segment>>,
+    private vertices$: Observable<Record<string, Vector2>>,
+    color?: string,
+  ) {
+    super();
+    this.setAttrs({ ...LINE_STYLE, stroke: color });
+    combineLatest({ segment: segment$, vertices: vertices$ })
+      .pipe(
+        filter(({ segment }) => !!segment),
+        this.withCleanup(),
+      )
+      .subscribe(({ segment, vertices }) => {
+        const segmentVertices = segment!.nodes
+          .filter((node) => !!node && !!vertices[node.id])
+          .map((node) => vertices[node.id]);
+        this.points(asLinePoints(segmentVertices)).moveToBottom();
+      });
+  }
+}
+
 export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
   private line$ = this.feature$;
-  private vertexChunks$ = this.line$.pipe(
-    map(chunkLineNodes),
-    tapLog(this.featureId + ' chunks'),
-    cacheValue(),
-  );
-  private kLines$: Observable<KLineInventory> = combineLatest([
+  private segments$ = this.line$.pipe(map(getSegments), cacheValue());
+  private displaySegments$: Observable<KLineInventory> = combineLatest([
     this.line$,
-    this.vertexChunks$,
+    this.segments$,
   ]).pipe(
     delayUntil(this.onInitialize$),
     mergeScan(
-      (kLines, [line, chunks]) =>
+      (kLines, [line, segments]) =>
         this.updateInventory$(
           kLines,
-          chunks,
-          (chunk: LineNodeChunk) => chunk.signature,
-          () => new Konva.Line({ ...LINE_STYLE, stroke: line?.color }),
+          segments,
+          (segment: Segment) => segment.id,
+          (segment) =>
+            new LineDisplaySegment(
+              this.store.select(networkSelectors.getFeature(segment.id, FeatureType.Segment)),
+              this.vertices$,
+              line?.color,
+            ),
         ),
       {} as KLineInventory,
     ),
@@ -83,7 +105,7 @@ export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
     cacheValue(),
   );
 
-  private vertices$: Observable<{ [nodeId: string]: Vector2 }> = this.nodeMarkers$.pipe(
+  private vertices$: Observable<Record<string, Vector2>> = this.nodeMarkers$.pipe(
     tapLog(this.featureId + ' nodes'),
     switchMap((inventory) =>
       combineLatest(
@@ -110,26 +132,7 @@ export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
 
   override initialize(): void {
     super.initialize();
-    combineLatest({
-      kLines: this.kLines$,
-      chunks: this.vertexChunks$,
-      vertices: this.vertices$,
-    }).subscribe({
-      error: (thrown) => console.error(thrown),
-      next: ({ kLines, chunks, vertices }) => {
-        // console.log(`${this.featureType} ${this.featureId}`, { vertices, chunks });
-        chunks
-          .filter(({ signature }) => !!kLines[signature])
-          .forEach((chunk) => {
-            const chunkVertices = chunk.nodes
-              .filter((node) => !!node && !!vertices[node.id])
-              .map((node) => vertices[node.id]);
-            kLines[chunk.signature].points(asLinePoints(chunkVertices));
-            kLines[chunk.signature].moveToBottom();
-          });
-      },
-    });
-
+    this.displaySegments$.subscribe({ error: (thrown) => console.error(thrown) });
     this.nodeMarkers$.subscribe({ error: (thrown) => console.error(thrown) });
   }
 }

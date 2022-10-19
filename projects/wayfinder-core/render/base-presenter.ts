@@ -36,7 +36,6 @@ export abstract class BasePresenter extends WFAnimatable(EventTarget) {
     // forward all events to renderables
     Object.values(WFEvent).forEach((type) => {
       this.addEventListener(type, (event) => {
-        console.log('forward', event);
         this.rootNode.getChildren().forEach((node) => node.dispatchEvent(event));
       });
     });

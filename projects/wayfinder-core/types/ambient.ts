@@ -13,7 +13,7 @@ declare global {
 
   type Inventory<T> = { [id: string]: T };
   type Nullable<T> = T | undefined | null;
-  type Constructor = new (...args: any[]) => {};
+  type Constructor<T = {}> = new (...args: any[]) => T;
 }
 
 export {};
