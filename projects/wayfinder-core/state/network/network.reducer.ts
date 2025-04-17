@@ -5,7 +5,6 @@ import * as _ from 'lodash';
 import { Alteration, NetworkFeatureChange } from '../../types/network';
 import { FeatureType, NetworkFeature } from '../../types/network-features';
 import { NetworkFeatureState, NetworkState } from '../../types/store';
-window._ = _;
 
 export const networkDefaultState: NetworkState = {
   alterationStack: [],
