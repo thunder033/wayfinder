@@ -46,6 +46,7 @@ function getSystemCenter(system: System): Vector2 {
   selector: 'wf-viewport',
   templateUrl: './viewport.component.html',
   styleUrls: ['./viewport.component.scss'],
+  standalone: false,
 })
 export class ViewportComponent implements OnDestroy {
   // populated when the render target element is available
