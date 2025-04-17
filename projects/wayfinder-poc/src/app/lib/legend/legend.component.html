@@ -1,8 +1,10 @@
 <div class="legend">
-  <ng-container *ngIf="systemService.system$ | async as system">
+  @if (systemService.system$ | async; as system) {
     <h3>{{ system.name }}</h3>
-    <div *ngFor="let line of system.lines">
-      <div class="line-sample" [ngStyle]="{ background: line.color }"></div>{{ line.name }}
-    </div>
-  </ng-container>
+    @for (line of system.lines; track line) {
+      <div>
+        <div class="line-sample" [ngStyle]="{ background: line.color }"></div>{{ line.name }}
+      </div>
+    }
+  }
 </div>
