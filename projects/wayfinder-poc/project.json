@@ -1,0 +1,106 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "wayfinder-poc",
+  "projectType": "application",
+  "generators": {
+    "@schematics/angular:component": {
+      "style": "scss"
+    },
+    "@schematics/angular:application": {
+      "strict": true
+    }
+  },
+  "sourceRoot": "projects/wayfinder-poc/src",
+  "prefix": "app",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "options": {
+        "outputPath": {
+          "base": "dist/wayfinder-poc"
+        },
+        "index": "projects/wayfinder-poc/src/index.html",
+        "polyfills": [
+          "projects/wayfinder-poc/src/polyfills.ts"
+        ],
+        "tsConfig": "projects/wayfinder-poc/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "projects/wayfinder-poc/src/favicon.ico",
+          "projects/wayfinder-poc/src/assets"
+        ],
+        "styles": [
+          "projects/wayfinder-poc/src/styles.scss"
+        ],
+        "scripts": [],
+        "browser": "projects/wayfinder-poc/src/main.ts"
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "projects/wayfinder-poc/src/environments/environment.ts",
+              "with": "projects/wayfinder-poc/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "wayfinder-poc:build:production"
+        },
+        "development": {
+          "buildTarget": "wayfinder-poc:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "wayfinder-poc:build"
+      }
+    },
+    "test": {
+      "executor": "@angular-devkit/build-angular:karma",
+      "options": {
+        "main": "projects/wayfinder-poc/src/test.ts",
+        "polyfills": "projects/wayfinder-poc/src/polyfills.ts",
+        "tsConfig": "projects/wayfinder-poc/tsconfig.spec.json",
+        "karmaConfig": "projects/wayfinder-poc/karma.conf.js",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "projects/wayfinder-poc/src/favicon.ico",
+          "projects/wayfinder-poc/src/assets"
+        ],
+        "styles": [
+          "projects/wayfinder-poc/src/styles.scss"
+        ],
+        "scripts": []
+      }
+    }
+  }
+}
