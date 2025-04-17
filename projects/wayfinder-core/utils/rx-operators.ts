@@ -7,6 +7,7 @@ import {
   map,
   MonoTypeOperatorFunction,
   Observable,
+  ObservableInput,
   ObservableInputTuple,
   of,
   OperatorFunction,
@@ -52,11 +53,11 @@ export const delayUntil =
     return concat(signal$.pipe(take(1), ignoreElements()), buffer$$).pipe(share());
   };
 
-export function chainRead<T, K extends KeysOfType<T, Observable<any>>>(
+export function chainRead<T, K extends KeysOfType<T, ObservableInput<unknown>>>(
   source$: Observable<T>,
   key: K,
 ): T[K] {
-  return source$.pipe(switchMap((v) => v[key])) as T[K];
+  return source$.pipe(switchMap((v) => v[key] as ObservableInput<unknown>)) as T[K];
 }
 
 // logging utility

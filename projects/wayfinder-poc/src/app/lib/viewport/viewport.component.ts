@@ -131,18 +131,15 @@ export class ViewportComponent implements OnDestroy {
         this.render();
       });
 
+    const ready$ = chainRead(this.camera$, 'ready$');
     // reposition the camera to the center of the system and display debugging grid
     this.systemService.system$
-      .pipe(
-        filter(Boolean),
-        withSampleFrom(chainRead(this.camera$, 'ready$')),
-        takeUntil(this.destroy$),
-      )
+      .pipe(filter(Boolean), withSampleFrom(ready$), takeUntil(this.destroy$))
       .subscribe({
-        error(thrown) {
+        error: (thrown) => {
           console.error(thrown);
         },
-        next: ([system, camera]) => {
+        next: ([system, camera]: [System, Camera]) => {
           camera.panTo(getSystemCenter(system));
           this.displayGrid();
         },
