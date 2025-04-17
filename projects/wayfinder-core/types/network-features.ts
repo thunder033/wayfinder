@@ -107,7 +107,7 @@ export interface System extends NetworkFeature<FeatureType.System> {
  * An isolated network feature with references to other features replaced with ID
  * values.
  */
-export type Dehydrated<T extends NetworkFeature> = {
+export type Dehydrated<T> = {
   [K in keyof T]: T[K] extends Array<infer U>
     ? U extends NetworkFeature
       ? string[]

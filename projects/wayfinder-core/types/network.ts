@@ -8,8 +8,14 @@ export interface NetworkFeatureChange<T extends Dehydrated<NetworkFeature> = any
   featureId: string;
   featureType: FeatureType;
   path: (string | number)[];
+  mutateList?: Dehydrated<ListPointer>;
   left: any;
   right: any;
+}
+
+export interface ListPointer {
+  relativeTo: NetworkFeature;
+  side: 'left' | 'right';
 }
 
 /**
