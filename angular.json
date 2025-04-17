@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "wayfinder-ui:build:production"
+              "buildTarget": "wayfinder-ui:build:production"
             },
             "development": {
-              "browserTarget": "wayfinder-ui:build:development"
+              "buildTarget": "wayfinder-ui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "wayfinder-ui:build"
+            "buildTarget": "wayfinder-ui:build"
           }
         },
         "test": {
@@ -175,10 +175,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "wayfinder-poc:build:production"
+              "buildTarget": "wayfinder-poc:build:production"
             },
             "development": {
-              "browserTarget": "wayfinder-poc:build:development"
+              "buildTarget": "wayfinder-poc:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -186,7 +186,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "wayfinder-poc:build"
+            "buildTarget": "wayfinder-poc:build"
           }
         },
         "test": {
