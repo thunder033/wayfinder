@@ -98,7 +98,8 @@ export class SystemService {
         {
           featureId: segment1.id,
           featureType: FeatureType.Segment,
-          path: ['nodes', 3],
+          path: ['nodes'],
+          mutateList: { relativeTo: geometryNode1.id, side: 'right' },
           left: undefined,
           right: station3.id,
         },

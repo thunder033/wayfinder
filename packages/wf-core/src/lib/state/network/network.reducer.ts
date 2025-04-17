@@ -1,8 +1,8 @@
 import { createAction, createReducer, on, props } from '@ngrx/store';
 import { omit, set, cloneDeep, get } from 'lodash';
 
-import { Alteration, NetworkFeatureChange } from '../../types/network';
-import { FeatureType, NetworkFeature } from '../../types/network-features';
+import { Alteration, ListPointer, NetworkFeatureChange } from '../../types/network';
+import { Dehydrated, FeatureType, NetworkFeature } from '../../types/network-features';
 import { NetworkFeatureState, NetworkState } from '../../types/store';
 
 export const networkDefaultState: NetworkState = {
@@ -98,6 +98,15 @@ function omitAt<T extends object>(target: T, path: (string | number)[]): T {
   return omit(target, path) as T;
 }
 
+function validateListMutation(list: string[], pointer: Dehydrated<ListPointer>, value?: string) {
+  const { side, relativeTo } = pointer;
+  const start = list.indexOf(relativeTo) + side === 'left' ? -1 : 0;
+  const removeCount = typeof value === 'undefined' ? 1 : 0;
+  const insert = typeof value === 'undefined' ? [] : [value];
+
+
+}
+
 function applyChanges(
   state: NetworkState,
   changes: NetworkFeatureChange[],
@@ -106,6 +115,26 @@ function applyChanges(
   return changes.reduce((out, change) => {
     const key = getKey({ type: change.featureType });
     const feature = out[key][change.featureId];
+    if (change.mutateList) {
+      // safest way to guarantee were working with an array
+      const list: string[] = Object.values(get(feature, change.path));
+      const pointer = change.mutateList;
+      const start = list.indexOf(pointer.relativeTo) + pointer.side === 'left' ? 0 : 1;
+      const removeCount = typeof change[side] === 'undefined' ? 1 : 0;
+      const insert = typeof change[side] === 'undefined' ? [] : [change[side]];
+
+      if(Symbol.iterator
+
+      if (list.includes(pointer.relativeTo)) {
+        // list does not include pointer reference ${pointer.relativeTo}: ${list}
+      }
+
+      list.splice(start, removeCount, ...insert);
+      return {
+        ...out,
+        [key]: { ...out[key], [feature.id]: set(cloneDeep(feature), change.path, list) },
+      };
+    }
     if (typeof change[side] === 'undefined') {
       return {
         ...out,
@@ -116,9 +145,7 @@ function applyChanges(
       ...out,
       [key]: {
         ...out[key],
-        [feature.id]: {
-          ...set(cloneDeep(feature), change.path, change[side]),
-        },
+        [feature.id]: set(cloneDeep(feature), change.path, change[side]),
       },
     };
   }, state);
