@@ -1,11 +1,11 @@
 import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 
+import { BasePresenter } from './base-presenter';
 import { network } from '../state/network';
 import { FeatureType, NetworkFeatureByType } from '../types/network-features';
 import { WFState } from '../types/store';
 import { cacheValue } from '../utils/rx-operators';
-import { BasePresenter } from './base-presenter';
 
 export abstract class FeaturePresenter<T extends FeatureType> extends BasePresenter {
   protected feature$: Observable<NetworkFeatureByType[T] | undefined> = this.store.pipe(

@@ -14,10 +14,10 @@ import {
   takeUntil,
 } from 'rxjs';
 
+import { IWFAnimatable, WFAnimatable } from './animatable';
 import { Renderable } from '../types/presentation';
 import { cacheValue } from '../utils/rx-operators';
 import { WFEvent } from '../wf-konva/wf-tween';
-import { IWFAnimatable, WFAnimatable } from './animatable';
 
 export abstract class BasePresenter extends WFAnimatable(EventTarget) {
   onDestroy$ = fromEvent(this, WFEvent.Destroy);
