@@ -10,7 +10,7 @@ class TestObserver<T> implements Observer<T> {
     return obs;
   }
 
-  private spy = jest.fn();
+  private spy = vi.fn();
 
   next(value: T): void {
     this.spy(value);

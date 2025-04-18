@@ -11,8 +11,7 @@
     "lib": ["es2020", "dom"],
     "baseUrl": "./",
     "paths": {
-      "@wf-core/*": ["./projects/wayfinder-core/*"],
-      "wf-core": ["wf-core/src/index.ts"]
+      "wf-core": ["packages/wf-core/src/index.ts"]
     }
   }
 }

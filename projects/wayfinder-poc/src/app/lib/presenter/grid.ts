@@ -1,8 +1,7 @@
 import Konva from 'konva';
 import { Observable, Subject, takeUntil } from 'rxjs';
 
-import { WFKonva } from '@wf-core/wf-konva/wf-konva';
-import { WFEvent } from '@wf-core/wf-konva/wf-tween';
+import { WFEvent, WFKonva } from 'wf-core';
 
 import { Camera } from '../viewport/camera';
 

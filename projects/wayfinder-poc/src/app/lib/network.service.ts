@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
-import { Network } from '@wf-core/types/network';
+import { Network } from 'wf-core';
 
 @Injectable({
   providedIn: 'root',

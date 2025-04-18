@@ -18,12 +18,7 @@ import {
   takeUntil,
 } from 'rxjs';
 
-import { Vector2 } from '@wf-core/math';
-import { region } from '@wf-core/state/region';
-import { System } from '@wf-core/types/network-features';
-import { WFState } from '@wf-core/types/store';
-import { getBoundingBox } from '@wf-core/utils/geometry';
-import { cacheValue, chainRead, withSampleFrom } from '@wf-core/utils/rx-operators';
+import { cacheValue, chainRead, withSampleFrom, getBoundingBox, region, System, Vector2, WFState } from 'wf-core';
 
 import { Grid } from '../presenter/grid';
 import { NetworkPresenter } from '../presenter/network-presenter';

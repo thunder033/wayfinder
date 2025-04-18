@@ -2,10 +2,7 @@ import { Store } from '@ngrx/store';
 import { Bind } from 'lodash-decorators';
 import { Observable, Subject } from 'rxjs';
 
-import { FeaturePresenter } from '@wf-core/render/feature-presenter';
-import { FeatureType, NetworkFeature } from '@wf-core/types/network-features';
-import { Renderable } from '@wf-core/types/presentation';
-import { WFState } from '@wf-core/types/store';
+import { Renderable, FeatureType, NetworkFeature, FeaturePresenter, WFState } from 'wf-core';
 
 import { SystemService } from '../system.service';
 import { Camera } from '../viewport/camera';

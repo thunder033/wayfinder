@@ -1,4 +1,4 @@
-import { FeatureType, Mode, ServiceType } from '@wf-core/types/network-features';
+import { FeatureType, Mode, ServiceType } from 'wf-core';
 
 import { createAlteration, createFeature, dehydrate } from './data-utils';
 

@@ -2,14 +2,20 @@ import { Store } from '@ngrx/store';
 import Konva from 'konva';
 import { combineLatest, filter, map, mergeScan, Observable, switchMap } from 'rxjs';
 
-import { Vector2 } from '@wf-core/math';
-import { WFAnimatable } from '@wf-core/render/animatable';
-import { FeaturePresenter } from '@wf-core/render/feature-presenter';
-import { networkSelectors } from '@wf-core/state/network/network.selectors';
-import { FeatureType, Line, Segment, WFNode } from '@wf-core/types/network-features';
-import { WFState } from '@wf-core/types/store';
-import { cacheValue, delayUntil } from '@wf-core/utils/rx-operators';
-import { WFKonva } from '@wf-core/wf-konva/wf-konva';
+import {
+  cacheValue,
+  delayUntil,
+  Vector2,
+  WFAnimatable,
+  FeaturePresenter,
+  FeatureType,
+  Line,
+  Segment,
+  WFNode,
+  WFState,
+  WFKonva,
+  network,
+} from 'wf-core';
 
 import { Camera } from '../viewport/camera';
 import { asLinePoints, getSegments } from '../viewport/viewport-utils';
@@ -77,7 +83,7 @@ export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
           (segment: Segment) => segment.id,
           (segment) =>
             new LineDisplaySegment(
-              this.store.select(networkSelectors.getFeature(segment.id, FeatureType.Segment)),
+              this.store.select(network.getFeature(segment.id, FeatureType.Segment)),
               this.vertices$,
               line?.color,
             ),

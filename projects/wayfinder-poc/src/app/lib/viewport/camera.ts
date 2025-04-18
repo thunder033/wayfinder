@@ -1,8 +1,7 @@
 import Konva from 'konva';
 import { combineLatest, filter, map, mapTo, merge, Observable, take } from 'rxjs';
 
-import { Vector2 } from '@wf-core/math';
-import { cacheValue } from '@wf-core/utils/rx-operators';
+import { cacheValue, Vector2 } from 'wf-core';
 
 export class Camera {
   position = new Vector2.Rx(0, 0);

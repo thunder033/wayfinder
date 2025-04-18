@@ -26,14 +26,6 @@ module.exports = {
         alphabetize: { order: 'asc' },
         'newlines-between': 'always',
         groups: [['builtin', 'external'], ['internal']],
-        pathGroups: [
-          {
-            pattern: '@wf-core/**',
-            group: 'internal',
-            position: 'after',
-          },
-        ],
-        pathGroupsExcludedImportTypes: ['internal']
       },
     ],
   },

@@ -2,11 +2,7 @@ import { Injectable } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { filter, take } from 'rxjs';
 
-import { network } from '@wf-core/state/network';
-import { region } from '@wf-core/state/region';
-import { FeatureType, Mode, ServiceType } from '@wf-core/types/network-features';
-import { RegionState, WFState } from '@wf-core/types/store';
-import { cacheValue } from '@wf-core/utils/rx-operators';
+import { cacheValue, network, region,  FeatureType, Mode, ServiceType, RegionState, WFState } from 'wf-core';
 
 import { createAlteration, createFeature, dehydrate } from './data-utils';
 

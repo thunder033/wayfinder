@@ -1,13 +1,9 @@
 import { isArray } from 'lodash';
 
-import { Alteration } from '@wf-core/types/network';
-import {
-  Dehydrated,
+import { Alteration,  Dehydrated,
   FeatureType,
   NetworkFeature,
-  NetworkFeatureByType,
-} from '@wf-core/types/network-features';
-import { isNetworkFeature } from '@wf-core/utils/network-feature.utils';
+  NetworkFeatureByType, isNetworkFeature } from 'wf-core';
 
 let id = 0;
 export function createFeature<

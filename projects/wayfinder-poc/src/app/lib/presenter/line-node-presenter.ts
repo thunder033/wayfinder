@@ -1,13 +1,7 @@
 import Konva from 'konva';
 import { combineLatest, filter, map, Observable, switchMap, take, tap } from 'rxjs';
 
-import { Vector2 } from '@wf-core/math';
-import { WFAnimatable } from '@wf-core/render/animatable';
-import { BasePresenter } from '@wf-core/render/base-presenter';
-import { FeatureType, WFNode } from '@wf-core/types/network-features';
-import { cacheValue, toggleBy } from '@wf-core/utils/rx-operators';
-import { WFKonva } from '@wf-core/wf-konva/wf-konva';
-import { WFEvent } from '@wf-core/wf-konva/wf-tween';
+import { cacheValue, toggleBy, FeatureType, WFNode, BasePresenter, Vector2, WFAnimatable, WFEvent, WFKonva } from 'wf-core';
 
 import { Camera } from '../viewport/camera';
 import { NODE_STYLE, NodePresenter } from './node-presenter';
