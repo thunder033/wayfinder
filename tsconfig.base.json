@@ -1,0 +1,18 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "es2020",
+    "lib": ["es2020", "dom"],
+    "baseUrl": "./",
+    "paths": {
+      "@wf-core/*": ["./projects/wayfinder-core/*"],
+      "wf-core": ["wf-core/src/index.ts"]
+    }
+  }
+}
