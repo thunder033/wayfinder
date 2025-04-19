@@ -10,7 +10,7 @@ module.exports = {
     ecmaVersion: 13,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'import'],
+  plugins: ['@typescript-eslint', 'import', '@nx'],
   rules: {
     indent: ['off', 2, { SwitchCase: 1 }],
     'linebreak-style': ['error', 'unix'],
@@ -20,6 +20,23 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': ['off'],
     '@typescript-eslint/no-empty-function': ['off'],
     '@typescript-eslint/no-non-null-assertion': ['off'],
+    '@nx/enforce-module-boundaries': [
+      'error',
+      {
+        'allow': [],
+        // update depConstraints based on your tags
+        'depConstraints': [
+          {
+            "sourceTag": "scope:lib",
+            "onlyDependOnLibsWithTags": ["scope:lib"]
+          },
+          {
+            "sourceTag": "scope:app",
+            "onlyDependOnLibsWithTags": ["scope:lib"]
+          }
+        ]
+      }
+    ],
     'import/order': [
       1,
       {

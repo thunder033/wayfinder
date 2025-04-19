@@ -1,6 +1,14 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "useDefineForClassFields": false,
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
@@ -11,7 +19,8 @@
     "lib": ["es2020", "dom"],
     "baseUrl": "./",
     "paths": {
-      "wf-core": ["packages/wf-core/src/index.ts"]
+      "wf-core": ["packages/wf-core/src/index.ts"],
+      "@tools/*": ["tools/*"]
     }
   }
 }

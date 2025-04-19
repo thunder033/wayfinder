@@ -12,11 +12,16 @@
     },
     "test": {
       "cache": true,
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
       "inputs": ["default", "^production"]
     },
     "@nx/vite:test": {
       "cache": true,
       "inputs": ["default", "^production"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
     }
   },
   "namedInputs": {

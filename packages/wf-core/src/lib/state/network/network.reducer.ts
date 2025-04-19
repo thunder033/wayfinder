@@ -1,6 +1,5 @@
 import { createAction, createReducer, on, props } from '@ngrx/store';
 import { omit, set, cloneDeep, get } from 'lodash';
-import * as _ from 'lodash';
 
 import { Alteration, NetworkFeatureChange } from '../../types/network';
 import { FeatureType, NetworkFeature } from '../../types/network-features';

@@ -12,6 +12,7 @@
   },
   "sourceRoot": "projects/wayfinder-poc/src",
   "prefix": "app",
+  "tags": ["scope:app"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
@@ -85,22 +86,10 @@
       }
     },
     "test": {
-      "executor": "@angular-devkit/build-angular:karma",
       "options": {
-        "main": "projects/wayfinder-poc/src/test.ts",
-        "polyfills": "projects/wayfinder-poc/src/polyfills.ts",
-        "tsConfig": "projects/wayfinder-poc/tsconfig.spec.json",
-        "karmaConfig": "projects/wayfinder-poc/karma.conf.js",
-        "inlineStyleLanguage": "scss",
-        "assets": [
-          "projects/wayfinder-poc/src/favicon.ico",
-          "projects/wayfinder-poc/src/assets"
-        ],
-        "styles": [
-          "projects/wayfinder-poc/src/styles.scss"
-        ],
-        "scripts": []
+        "reportsDirectory": "../coverage/wayfinder-poc"
       }
-    }
+    },
+    "lint": {}
   }
 }
