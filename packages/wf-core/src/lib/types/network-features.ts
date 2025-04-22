@@ -114,6 +114,8 @@ export type Dehydrated<T> = {
       : U[]
     : T[K] extends NetworkFeature
     ? string
+    : T[K] extends object
+    ? Dehydrated<T[K]>
     : T[K];
 };
 

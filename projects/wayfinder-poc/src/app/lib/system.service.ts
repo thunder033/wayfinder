@@ -1,8 +1,22 @@
 import { Injectable } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { filter, take } from 'rxjs';
-
-import { cacheValue, network, region,  FeatureType, Mode, ServiceType, RegionState, WFState } from 'wf-core';
+import {
+  cacheValue,
+  Dehydrated,
+  FeatureType,
+  ListMutation,
+  ListPointerSide,
+  Mode,
+  network,
+  NetworkFeatureChange,
+  region,
+  RegionState,
+  Segment,
+  ServiceType,
+  WFNode,
+  WFState,
+} from 'wf-core';
 
 import { createAlteration, createFeature, dehydrate } from './data-utils';
 
@@ -69,6 +83,16 @@ const system1 = createFeature(FeatureType.System, {
   lines: [line1],
 });
 
+const insertSegmentNode = (segment: Segment, node: WFNode, at: ListMutation) =>
+  ({
+    featureId: segment.id,
+    featureType: FeatureType.Segment,
+    path: ['nodes'],
+    mutateList: at,
+    left: undefined,
+    right: node.id,
+  } satisfies Dehydrated<NetworkFeatureChange>);
+
 @Injectable({
   providedIn: 'root',
 })
@@ -88,32 +112,25 @@ export class SystemService {
     const alteration1 = createAlteration(1975, {
       additions: [station3, geometryNode1].map(dehydrate),
       changes: [
+        insertSegmentNode(segment1, geometryNode1, {
+          relativeTo: station2.id,
+          side: ListPointerSide.Right,
+        }),
+        insertSegmentNode(segment1, station3, {
+          relativeTo: geometryNode1.id,
+          side: ListPointerSide.Right,
+        }),
         {
-          featureId: segment1.id,
-          featureType: FeatureType.Segment,
-          path: ['nodes', 2],
-          left: undefined,
-          right: geometryNode1.id,
-        },
-        {
-          featureId: segment1.id,
-          featureType: FeatureType.Segment,
+          featureId: system1.id,
+          featureType: FeatureType.System,
           path: ['nodes'],
-          mutateList: { relativeTo: geometryNode1.id, side: 'right' },
-          left: undefined,
-          right: station3.id,
-        },
-        {
-          featureId: system1.id,
-          featureType: FeatureType.System,
-          path: ['nodes', 2],
           left: undefined,
           right: geometryNode1.id,
         },
         {
           featureId: system1.id,
           featureType: FeatureType.System,
-          path: ['nodes', 3],
+          path: ['nodes'],
           left: undefined,
           right: station3.id,
         },
@@ -126,14 +143,14 @@ export class SystemService {
         {
           featureId: system1.id,
           featureType: FeatureType.System,
-          path: ['nodes', 4],
+          path: ['nodes'],
           left: undefined,
           right: station4.id,
         },
         {
           featureId: system1.id,
           featureType: FeatureType.System,
-          path: ['lines', 1],
+          path: ['lines'],
           left: undefined,
           right: line2.id,
         },

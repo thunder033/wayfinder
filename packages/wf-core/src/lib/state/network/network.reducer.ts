@@ -1,8 +1,8 @@
 import { createAction, createReducer, on, props } from '@ngrx/store';
-import { omit, set, cloneDeep, get } from 'lodash';
+import { cloneDeep, get, omit, set } from 'lodash';
 
-import { Alteration, ListPointer, NetworkFeatureChange } from '../../types/network';
-import { Dehydrated, FeatureType, NetworkFeature } from '../../types/network-features';
+import { Alteration, ListPointerSide, NetworkFeatureChange } from '../../types/network';
+import { FeatureType, NetworkFeature } from '../../types/network-features';
 import { NetworkFeatureState, NetworkState } from '../../types/store';
 
 export const networkDefaultState: NetworkState = {
@@ -45,7 +45,7 @@ export const networkReducer = createReducer(
     const out = {
       ...applyChanges(
         applyAdditions(applyRemovals(state, alteration.additions), alteration.removals),
-        alteration.changes,
+        alteration.changes.slice().reverse(),
         'left',
       ),
       alterationStack: state.alterationStack.slice(0, -1),
@@ -80,17 +80,18 @@ function applyRemovals(state: NetworkState, removals: NetworkFeature[]): Network
   );
 }
 
+/**
+ * Removes the object property at the given path
+ * @param target
+ * @param path
+ */
 function omitAt<T extends object>(target: T, path: (string | number)[]): T {
   if (path.length > 1) {
     const out = cloneDeep(target);
-    const workingPath = cloneDeep(path);
-    const targetProp = workingPath.pop()!;
+    const workingPath = [...path];
+    const targetProp = workingPath.pop()!; // we checked there is at least one item
     const parent = get(out, workingPath);
-    if (Array.isArray(parent) && typeof targetProp === 'number') {
-      parent.splice(targetProp, 1);
-    } else {
-      delete parent[targetProp];
-    }
+    delete parent[targetProp];
     return out;
   }
 
@@ -98,14 +99,82 @@ function omitAt<T extends object>(target: T, path: (string | number)[]): T {
   return omit(target, path) as T;
 }
 
-function validateListMutation(list: string[], pointer: Dehydrated<ListPointer>, value?: string) {
-  const { side, relativeTo } = pointer;
-  const start = list.indexOf(relativeTo) + side === 'left' ? -1 : 0;
-  const removeCount = typeof value === 'undefined' ? 1 : 0;
-  const insert = typeof value === 'undefined' ? [] : [value];
+const removesItem = (value: unknown) => {
+  return typeof value === 'undefined';
+};
 
-
+interface SpliceListParams<T> {
+  list: T[];
+  cutAt: number;
+  omitUntil?: number;
 }
+const spliceList = <T>(
+  { list, cutAt, omitUntil }: SpliceListParams<T>,
+  ...insertItems: T[]
+): T[] => {
+  const leftItems = list.slice(0, cutAt);
+  const rightItems = list.slice(omitUntil || cutAt);
+  return [...leftItems, ...insertItems, ...rightItems];
+};
+
+const getOtherSide = (side: 'left' | 'right') => {
+  return side === 'left' ? 'right' : 'left';
+};
+
+/**
+ * Applies a list mutation relative to another item found in the list. During removals, this method
+ * does not check if the target item is actually the item specified, but works only from the reference
+ * point by position
+ * @param change
+ * @param list
+ * @param side
+ */
+const mutateListRelativeTo = (
+  change: NetworkFeatureChange,
+  list: string[],
+  side: 'left' | 'right',
+) => {
+  if (typeof change.mutateList?.relativeTo === 'string') {
+    const pointer = change.mutateList;
+
+    const isRemoval = removesItem(change[side]);
+    const mutate = {
+      removeLeft: isRemoval && pointer.side === ListPointerSide.Left ? -1 : 0,
+      removeRight: isRemoval && pointer.side === ListPointerSide.Right ? 1 : 0,
+    };
+
+    const refIndex =
+      list.indexOf(pointer.relativeTo!) + (pointer.side === ListPointerSide.Left ? 0 : 1);
+    const insertion = isRemoval ? [] : [change[side]];
+    return spliceList(
+      { list, cutAt: refIndex + mutate.removeLeft, omitUntil: refIndex + mutate.removeRight },
+      ...insertion,
+    );
+  }
+
+  return list;
+};
+
+/**
+ * Apply simple list mutation inferring the operation from the available properties. Removes an item
+ * or inserts at the head/tail of this list.
+ * @param change
+ * @param list
+ * @param side
+ */
+const mutateListSimple = (change: NetworkFeatureChange, list: string[], side: 'left' | 'right') => {
+  const isRemoval = removesItem(change[side]);
+  if (isRemoval) {
+    const targetIndex =
+      change.mutateList?.side === ListPointerSide.Right
+        ? list.indexOf(change[getOtherSide(side)])
+        : list.lastIndexOf(change[getOtherSide(side)]);
+    return spliceList({ list, cutAt: targetIndex, omitUntil: targetIndex + 1 });
+  } else {
+    const targetIndex = change.mutateList?.side === ListPointerSide.Left ? 0 : list.length;
+    return spliceList({ list, cutAt: targetIndex }, change[side]);
+  }
+};
 
 function applyChanges(
   state: NetworkState,
@@ -115,27 +184,19 @@ function applyChanges(
   return changes.reduce((out, change) => {
     const key = getKey({ type: change.featureType });
     const feature = out[key][change.featureId];
-    if (change.mutateList) {
-      // safest way to guarantee were working with an array
-      const list: string[] = Object.values(get(feature, change.path));
-      const pointer = change.mutateList;
-      const start = list.indexOf(pointer.relativeTo) + pointer.side === 'left' ? 0 : 1;
-      const removeCount = typeof change[side] === 'undefined' ? 1 : 0;
-      const insert = typeof change[side] === 'undefined' ? [] : [change[side]];
+    const targetValue = get(feature, change.path);
+    if (Array.isArray(targetValue)) {
+      // it would be safest to check if this was actually a string array, but it should be a safe bet
+      const outList = change.mutateList?.relativeTo
+        ? mutateListRelativeTo(change, targetValue as string[], side)
+        : mutateListSimple(change, targetValue as string[], side);
 
-      if(Symbol.iterator
-
-      if (list.includes(pointer.relativeTo)) {
-        // list does not include pointer reference ${pointer.relativeTo}: ${list}
-      }
-
-      list.splice(start, removeCount, ...insert);
       return {
         ...out,
-        [key]: { ...out[key], [feature.id]: set(cloneDeep(feature), change.path, list) },
+        [key]: { ...out[key], [feature.id]: set(cloneDeep(feature), change.path, outList) },
       };
     }
-    if (typeof change[side] === 'undefined') {
+    if (removesItem(change[side])) {
       return {
         ...out,
         [key]: { ...out[key], [feature.id]: omitAt(feature, change.path) },

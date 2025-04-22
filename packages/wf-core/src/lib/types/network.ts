@@ -4,18 +4,28 @@ import { Dehydrated, FeatureType, NetworkFeature } from './network-features';
 /**
  * describes a change in the properties of a network feature
  */
-export interface NetworkFeatureChange<T extends Dehydrated<NetworkFeature> = any> {
+export interface NetworkFeatureChange {
   featureId: string;
   featureType: FeatureType;
-  path: (string | number)[];
-  mutateList?: Dehydrated<ListPointer>;
+  path: string[];
+  /** describes how a list at "path" should be mutated relative to a feature */
+  mutateList?: Dehydrated<ListMutation>;
   left: any;
   right: any;
 }
 
-export interface ListPointer {
-  relativeTo: NetworkFeature;
-  side: 'left' | 'right';
+/** different from NetworkFeatureChange.left/right */
+export enum ListPointerSide {
+  Left = 'left-of-item',
+  Right = 'right-of-item',
+}
+
+/**
+ * Describes how the list will be mutated
+ */
+export interface ListMutation {
+  relativeTo?: string; // TODO does this need to be a network feature?
+  side?: ListPointerSide;
 }
 
 /**
