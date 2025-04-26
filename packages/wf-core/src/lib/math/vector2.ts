@@ -128,6 +128,20 @@ export class Vector2 implements Vector2Expression {
   normal() {
     return this.divideScalar(this.magnitude());
   }
+
+  /**
+   * Get the length of the vector
+   */
+  len() {
+    return Math.sqrt(this.len2());
+  }
+
+  /**
+   * Get the lengths squared of the vector
+   */
+  len2() {
+    return this.x * this.x + this.y * this.y;
+  }
 }
 
 class RxVector2 extends Vector2 {

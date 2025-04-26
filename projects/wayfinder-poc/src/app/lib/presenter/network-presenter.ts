@@ -1,13 +1,12 @@
 import { Store } from '@ngrx/store';
 import { Bind } from 'lodash-decorators';
 import { Observable, Subject } from 'rxjs';
-
 import { Renderable, FeatureType, NetworkFeature, FeaturePresenter, WFState } from 'wf-core';
 
 import { SystemService } from '../system.service';
-import { Camera } from '../viewport/camera';
 import { LinePresenter } from './line-presenter';
 import { NodePresenter } from './node-presenter';
+import { Camera } from '../viewport/camera';
 
 export class NetworkPresenter {
   private presenters: { [featureId: string]: FeaturePresenter<FeatureType> } = {};

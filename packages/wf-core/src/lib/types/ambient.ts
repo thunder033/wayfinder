@@ -13,7 +13,7 @@ declare global {
 
   type Inventory<T> = { [id: string]: T };
   type Nullable<T> = T | undefined | null;
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   type Constructor<T = {}> = new (...args: any[]) => T;
 }
 

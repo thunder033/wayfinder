@@ -13,7 +13,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'import', '@nx'],
   rules: {
     indent: ['off', 2, { SwitchCase: 1 }],
-    'linebreak-style': ['error', 'unix'],
+    'linebreak-style': ['off', 'unix'],
     quotes: ['error', 'single'],
     semi: ['error', 'always'],
     '@typescript-eslint/no-namespace': ['off'],
@@ -23,19 +23,19 @@ module.exports = {
     '@nx/enforce-module-boundaries': [
       'error',
       {
-        'allow': [],
+        allow: [],
         // update depConstraints based on your tags
-        'depConstraints': [
+        depConstraints: [
           {
-            "sourceTag": "scope:lib",
-            "onlyDependOnLibsWithTags": ["scope:lib"]
+            sourceTag: 'scope:lib',
+            onlyDependOnLibsWithTags: ['scope:lib'],
           },
           {
-            "sourceTag": "scope:app",
-            "onlyDependOnLibsWithTags": ["scope:lib"]
-          }
-        ]
-      }
+            sourceTag: 'scope:app',
+            onlyDependOnLibsWithTags: ['scope:lib'],
+          },
+        ],
+      },
     ],
     'import/order': [
       1,

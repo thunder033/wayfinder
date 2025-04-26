@@ -1,26 +1,27 @@
 import { Store } from '@ngrx/store';
 import Konva from 'konva';
-import { combineLatest, filter, map, mergeScan, Observable, switchMap } from 'rxjs';
-
+import { combineLatest, filter, map, mergeScan, Observable, switchMap, tap } from 'rxjs';
 import {
   cacheValue,
   delayUntil,
-  Vector2,
-  WFAnimatable,
   FeaturePresenter,
   FeatureType,
   Line,
+  network,
+  sampleMap,
   Segment,
+  Vector2,
+  WFAnimatable,
+  WFEvent,
+  WFKonva,
   WFNode,
   WFState,
-  WFKonva,
-  network,
 } from 'wf-core';
 
-import { Camera } from '../viewport/camera';
-import { asLinePoints, getSegments } from '../viewport/viewport-utils';
 import { LineNodePresenter } from './line-node-presenter';
 import { NodePresenter } from './node-presenter';
+import { Camera } from '../viewport/camera';
+import { asLinePoints, getSegments } from '../viewport/viewport-utils';
 
 const LINE_STYLE: Partial<Konva.LineConfig> = {
   stroke: '#000',
@@ -45,15 +46,42 @@ function getNodes(line: Nullable<Line>): NodeInventory {
     .reduce((out, node) => ({ ...out, [node.id]: node }), {});
 }
 
+const getLineLength = (vertices: Vector2.Expression[]) => {
+  let length = 0;
+  let index = 0;
+  while (vertices[index + 1]) {
+    length += Vector2.from(vertices[index])
+      .sub(vertices[index + 1])
+      .len();
+    index++;
+  }
+
+  return length;
+};
+
 class LineDisplaySegment extends WFKonva.Extended(WFAnimatable(Konva.Line)) {
+  private segmentLength$ = combineLatest({
+    segment: this.segment$,
+    vertices: this.localVertices$,
+  }).pipe(
+    filter(({ segment }) => !!segment),
+    map(({ segment, vertices }) => {
+      const segmentVertices = segment!.nodes
+        .filter((node) => !!node && !!vertices[node.id])
+        .map((node) => vertices[node.id]);
+      return getLineLength(segmentVertices);
+    }),
+  );
+
   constructor(
     private segment$: Observable<Nullable<Segment>>,
-    private vertices$: Observable<Record<string, Vector2>>,
+    screenVertices$: Observable<Record<string, Vector2>>,
+    private localVertices$: Observable<Record<string, Vector2>>,
     color?: string,
   ) {
     super();
     this.setAttrs({ ...LINE_STYLE, stroke: color });
-    combineLatest({ segment: segment$, vertices: vertices$ })
+    combineLatest({ segment: segment$, vertices: screenVertices$ })
       .pipe(
         filter(({ segment }) => !!segment),
         this.withCleanup(),
@@ -64,6 +92,21 @@ class LineDisplaySegment extends WFKonva.Extended(WFAnimatable(Konva.Line)) {
           .map((node) => vertices[node.id]);
         this.points(asLinePoints(segmentVertices)).moveToBottom();
       });
+
+    this.on$(WFEvent.Present)
+      .pipe(
+        sampleMap(this.segmentLength$),
+        tap((length) => {
+          this.dashOffset(length);
+          this.dash([length]);
+          this.queueTween({
+            node: this,
+            dashOffset: 0,
+            duration: 0.5,
+          });
+        }),
+      )
+      .subscribe();
   }
 }
 
@@ -84,7 +127,8 @@ export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
           (segment) =>
             new LineDisplaySegment(
               this.store.select(network.getFeature(segment.id, FeatureType.Segment)),
-              this.vertices$,
+              this.screenVertices$,
+              this.localVertices$,
               line?.color,
             ),
         ),
@@ -111,7 +155,7 @@ export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
     cacheValue(),
   );
 
-  private vertices$: Observable<Record<string, Vector2>> = this.nodeMarkers$.pipe(
+  private screenVertices$: Observable<Record<string, Vector2>> = this.nodeMarkers$.pipe(
     tapLog(this.featureId + ' nodes'),
     switchMap((inventory) =>
       combineLatest(
@@ -119,6 +163,22 @@ export class LinePresenter extends FeaturePresenter<FeatureType.Line> {
           (out, nodeId) => ({
             ...out,
             [nodeId]: inventory[nodeId].screenPosition$,
+          }),
+          {},
+        ),
+      ),
+    ),
+    // tapLog(this.featureId + ' vertices'),
+    cacheValue(),
+  );
+
+  private localVertices$: Observable<Record<string, Vector2>> = this.nodeMarkers$.pipe(
+    switchMap((inventory) =>
+      combineLatest(
+        Object.keys(inventory).reduce(
+          (out, nodeId) => ({
+            ...out,
+            [nodeId]: inventory[nodeId].nodePosition$,
           }),
           {},
         ),

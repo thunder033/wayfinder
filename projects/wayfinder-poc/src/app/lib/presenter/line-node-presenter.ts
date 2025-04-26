@@ -1,7 +1,17 @@
 import Konva from 'konva';
-import { combineLatest, filter, map, Observable, switchMap, take, tap } from 'rxjs';
+import { combineLatest, filter, map, Observable, switchMap, take, takeUntil, tap } from 'rxjs';
 
-import { cacheValue, toggleBy, FeatureType, WFNode, BasePresenter, Vector2, WFAnimatable, WFEvent, WFKonva } from 'wf-core';
+import {
+  cacheValue,
+  toggleBy,
+  FeatureType,
+  WFNode,
+  BasePresenter,
+  Vector2,
+  WFAnimatable,
+  WFEvent,
+  WFKonva,
+} from 'wf-core';
 
 import { Camera } from '../viewport/camera';
 import { NODE_STYLE, NodePresenter } from './node-presenter';
@@ -81,6 +91,7 @@ export class LineNodePresenter extends BasePresenter {
   screenPosition$ = combineLatest([this.nodePosition$, this.offset$]).pipe(
     map(([origin, offset]) => origin.clone().add(offset)),
     cacheValue(),
+    takeUntil(this.onDestroy$),
   );
 
   private marker = new LineNodeMarker(this.nodePresenter.node$);

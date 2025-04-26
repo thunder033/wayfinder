@@ -11,6 +11,7 @@ import {
   ReplaySubject,
   startWith,
   Subject,
+  take,
   takeUntil,
 } from 'rxjs';
 
@@ -18,6 +19,8 @@ import { IWFAnimatable, WFAnimatable } from './animatable';
 import { Renderable } from '../types/presentation';
 import { cacheValue } from '../utils/rx-operators';
 import { WFEvent } from '../wf-konva/wf-tween';
+
+type MaybeAnimatible = Renderable & Partial<IWFAnimatable>;
 
 export abstract class BasePresenter extends WFAnimatable(EventTarget) {
   onDestroy$ = fromEvent(this, WFEvent.Destroy);
@@ -50,9 +53,10 @@ export abstract class BasePresenter extends WFAnimatable(EventTarget) {
     this.onInitialize$$.complete();
   }
 
-  protected render$(renderable: Renderable & Partial<IWFAnimatable>) {
+  protected render$(renderable: MaybeAnimatible) {
     renderable.animation$?.subscribe();
     return this.onInitialize$.pipe(
+      take(1),
       map(() => {
         this.rootNode.add(renderable);
         return renderable;
@@ -60,7 +64,25 @@ export abstract class BasePresenter extends WFAnimatable(EventTarget) {
     );
   }
 
-  protected updateInventory$<T extends object, R extends BasePresenter | Renderable>(
+  protected addRenderable(item: BasePresenter | MaybeAnimatible) {
+    if (item instanceof Konva.Node) {
+      this.renderable$$.next(item);
+    } else if ('renderable$' in item) {
+      item.renderable$.subscribe((renderable) => {
+        this.renderable$$.next(renderable);
+      });
+      // TODO is this actually congruent??
+      item.animation$?.pipe(takeUntil(this.onDestroy$)).subscribe();
+
+      // wait until everything has reacted to new network state
+      setTimeout(() => item.initialize(), 0);
+    }
+    // TODO: this is hacky - queue initialization and presentation of renderables
+    // wait until new state is stable and initialized
+    setTimeout(() => item.dispatchEvent(new Event(WFEvent.Present)), 1);
+  }
+
+  protected updateInventory$<T extends object, R extends BasePresenter | MaybeAnimatible>(
     inventory: Inventory<R>,
     inputList: T[],
     getId: (item: T) => string,
@@ -73,20 +95,7 @@ export abstract class BasePresenter extends WFAnimatable(EventTarget) {
     const added: Inventory<R> = inputList
       .filter((item) => !Object.keys(inventory).includes(getId(item)))
       .reduce((out, item) => ({ ...out, [getId(item)]: getNewRenderable(item) }), {});
-    Object.values(added).forEach((item) => {
-      if (item instanceof Konva.Node) {
-        this.renderable$$.next(item);
-      } else if ('renderable$' in item) {
-        item.renderable$.subscribe((renderable) => {
-          this.renderable$$.next(renderable);
-        });
-        // wait until everything has reacted to new network state
-        setTimeout(() => item.initialize(), 0);
-      }
-      // TODO: this is hacky - queue initialization and presentation of renderables
-      // wait until new state is stable and initialized
-      setTimeout(() => item.dispatchEvent(new Event(WFEvent.Present)), 1);
-    });
+    Object.values(added).forEach((item) => this.addRenderable(item));
 
     // teardown removed items in the inventory
     const teardown$s = Object.keys(inventory)
