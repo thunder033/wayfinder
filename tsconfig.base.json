@@ -19,8 +19,8 @@
     "lib": ["es2020", "dom"],
     "baseUrl": "./",
     "paths": {
-      "wf-core": ["packages/wf-core/src/index.ts"],
-      "@tools/*": ["tools/*"]
+      "@tools/*": ["tools/*"],
+      "wf-core": ["packages/wf-core/src/index.ts"]
     }
   }
 }
