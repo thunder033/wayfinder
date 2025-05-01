@@ -1,0 +1,85 @@
+{
+  "name": "interview-item-selector",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "projects/interview-item-selector/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/projects/interview-item-selector",
+        "index": "projects/interview-item-selector/src/index.html",
+        "browser": "projects/interview-item-selector/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "projects/interview-item-selector/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "projects/interview-item-selector/public"
+          }
+        ],
+        "styles": ["projects/interview-item-selector/src/styles.scss"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "interview-item-selector:build:production"
+        },
+        "development": {
+          "buildTarget": "interview-item-selector:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "interview-item-selector:build"
+      }
+    },
+    "test": {
+      "options": {
+        "reportsDirectory": "../coverage/interview-item-selector"
+      }
+    },
+    "lint": {},
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "interview-item-selector:build",
+        "staticFilePath": "dist/projects/interview-item-selector/browser",
+        "spa": true
+      }
+    }
+  }
+}
