@@ -1,0 +1,47 @@
+@property --list-spacing {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 16px;
+}
+
+@property --app-border-radius {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 3px;
+}
+
+@property --color-surface {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: hsl(0, 0%, 100%);
+}
+
+@property --color-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: hsl(0, 0%, 96%);
+}
+
+@property --color-text-on-surface {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: hsl(195, 3%, 24%);
+}
+
+@property --color-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: hsl(210, 0%, 89%);
+}
+
+@property --color-primary {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: hsl(213, 97%, 53%);
+}
+
+:host {
+  color: var(--color-text-on-surface);
+  // couldn't actually find an easy way to get this font file
+  font: 14px "Source Sans Pro", Arial, sans-serif;
+}

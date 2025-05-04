@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  width: 275px;
+  margin: 10px 0;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+  width: 100%;
+  border-radius: var(--app-border-radius);
+  border: 1px var(--color-border) solid;
+}
+
+.selected-info {
+  margin-bottom: 10px;
+}
+
+.clear-btn {
+  float: right;
+  color: var(--color-surface);
+  background-color: var(--color-primary);
+  border-radius: var(--app-border-radius);
+  border: 1px var(--color-border) solid;
+  padding: 8px 16px;
+}
