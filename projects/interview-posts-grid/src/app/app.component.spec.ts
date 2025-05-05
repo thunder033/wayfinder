@@ -17,9 +17,9 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Item Selector');
   });
 
-  it('should have as title "interview-item-selector"', () => {
+  it('should have as title "interview-posts-grid"', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('interview-item-selector');
+    expect(app.title).toEqual('interview-posts-grid');
   });
 });
