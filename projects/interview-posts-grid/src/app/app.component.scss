@@ -1,16 +1,16 @@
-@property --list-spacing {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 16px;
-}
-
 @property --app-border-radius {
   syntax: "<length>";
   inherits: false;
-  initial-value: 3px;
+  initial-value: 5px;
 }
 
 @property --color-surface {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: hsl(0, 0%, 90%);
+}
+
+@property --color-surface-light {
   syntax: "<color>";
   inherits: true;
   initial-value: hsl(0, 0%, 100%);

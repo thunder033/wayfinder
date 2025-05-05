@@ -1,8 +1,8 @@
 import { Route } from '@angular/router';
 
-import { ItemSelectorComponent } from '../lib/components/item-selector/item-selector.component';
+import { PostsGridComponent } from '../lib/components/posts-grid/posts-grid.component';
 
 export const appRoutes: Route[] = [
-  { path: '', redirectTo: '/item-selector', pathMatch: 'full' },
-  { path: 'item-selector', component: ItemSelectorComponent },
+  { path: '', redirectTo: '/posts-grid', pathMatch: 'full' },
+  { path: 'posts-grid', component: PostsGridComponent },
 ];

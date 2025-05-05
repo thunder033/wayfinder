@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { itemSelector } from '../lib/state';
-import { GetItemsResponse } from '../lib/types/items';
-import { cacheValue } from 'wf-core';
+import { postsGrid } from '../lib/state';
+import { GetPostsResponse } from '../lib/types/posts-grid';
+
+export const POSTS_ENDPOINT = 'https://jsonplaceholder.typicode.com/posts';
 
 @Component({
   imports: [RouterModule],
@@ -13,26 +14,20 @@ import { cacheValue } from 'wf-core';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'interview-posts-grid';
 
-  constructor(private store: Store, private http: HttpClient) {
-    this.store.pipe(tapLog('state'), cacheValue()).subscribe();
-    this.loadItemsData();
+  constructor(private store: Store, private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.loadPostsData();
   }
 
-  loadItemsData() {
-    const itemsEndpoint = '/get-items.json';
-    this.http
-      .get<GetItemsResponse>(itemsEndpoint)
-      .pipe()
-      .subscribe((data) => {
-        data.folders.data.forEach((rawFolder) =>
-          this.store.dispatch(itemSelector.loadFolder({ rawFolder })),
-        );
-        data.items.data.forEach((rawItem) =>
-          this.store.dispatch(itemSelector.loadItem({ rawItem })),
-        );
-      });
+  // contrived data load is here to demonstrate usage of NgRX
+  // in a production app this would go into some kind of service based on the architecture needs
+  loadPostsData() {
+    this.http.get<GetPostsResponse>(POSTS_ENDPOINT).subscribe((data) => {
+      data.forEach((post) => this.store.dispatch(postsGrid.loadPost({ post })));
+    });
   }
 }

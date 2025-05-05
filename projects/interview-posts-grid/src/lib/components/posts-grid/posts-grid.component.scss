@@ -1,0 +1,22 @@
+:host {
+  margin: 10px 0;
+  height: 100%;
+}
+
+div.posts-grid {
+  padding: 1em;
+  background: hsl(0, 0%, 80%);
+
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-auto-rows: 100px;
+  column-gap: 1em;
+  row-gap: 1em;
+
+  border-radius: var(--app-border-radius);
+  border: 1px var(--color-border) solid;
+}
+
+.selected-info {
+  margin-bottom: 10px;
+}

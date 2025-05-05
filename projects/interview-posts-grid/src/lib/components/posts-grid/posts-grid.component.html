@@ -1,0 +1,10 @@
+<div class="selected-info">Focused post ID: <span qa-focused-post-id>{{ focusedPostId() }}</span></div>
+
+<div class="posts-grid">
+@for (post of posts(); track post.id) {
+  <app-post [id]="post.id"></app-post>
+}
+</div>
+
+
+

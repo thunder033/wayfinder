@@ -1,5 +1,6 @@
-import { itemSelectorActions, itemSelectorReducer } from './item-selector.reducer';
-import { itemSelectorSelectors } from './item-selector.selctors';
+import { postsGridActions, postsGridReducer } from './posts-grid.reducer';
+import { postsGridSelectors } from './posts-grid.selctors';
+import { provideStore } from '@ngrx/store';
 
 /**
  * itemsSelector actions and selectors
@@ -9,8 +10,10 @@ import { itemSelectorSelectors } from './item-selector.selctors';
  * where it's easy to have overlapping selectors from different features. Also
  * makes alot of the reducer-internal code a lot less verbose.
  */
-export const itemSelector = {
-  reducer: itemSelectorReducer,
-  ...itemSelectorActions,
-  ...itemSelectorSelectors,
+export const postsGrid = {
+  reducer: postsGridReducer,
+  ...postsGridActions,
+  ...postsGridSelectors,
 };
+
+export const storeProvider = provideStore({ postsGrid: postsGrid.reducer });
