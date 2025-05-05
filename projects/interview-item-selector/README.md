@@ -20,17 +20,17 @@ This project is currently built with **Node 22**/NPM 10.9:
 All the commands in this monorepo are NX project targets.
 With NX CLI installed, the simplest variation of running the app is
 
-> nx serve interview-posts-grid
+> nx serve interview-item-selector
 
 Otherwise, then NX can be found with npx:
 
-> npx nx serve interview-posts-grid
+> npx nx serve interview-item-selector
 
 ## Running tests
 
 Tests can be run with the `test` target:
 
-> nx test interview-posts-grid
+> nx test interview-item-selector
 
 ## Re-cap
 
