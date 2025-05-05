@@ -1,9 +1,9 @@
 <ul>
-@for (folder of rootFolders$ | async; track folder.id) {
+@for (folder of rootFolders(); track folder.id) {
   <li><app-folder [id]="folder.id" [level]="1"></app-folder></li>
 }
 </ul>
 
-<div class="selected-info">Selected item IDs: {{ selectedItemIds$ | async }}</div>
+<div class="selected-info">Selected item IDs: {{ selectedItemIds() }}</div>
 
 <button class="clear-btn" (click)="clearSelection()">Clear Selection</button>

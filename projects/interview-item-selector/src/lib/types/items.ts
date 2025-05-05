@@ -32,18 +32,19 @@ export interface GetItemsResponse {
  *   --- intuitive and easy to work with, more powerful
  *   --- likely worse performance and potentially gotcha's with selectors
  *
- * I'm choosing a single abstraction to represent all the tree nodes TODO
+ * Originally looked at more cohesive data structure based on a "TreeNode", but
+ * the value turned out to be limited.
  */
-export interface TreeNode {
+
+export interface Item {
   id: number;
   title: string;
-}
-
-export interface Item extends TreeNode {
   folderId: number;
 }
 
-export interface Folder extends TreeNode {
+export interface Folder {
+  id: number;
+  title: string;
   parentId: number;
 }
 

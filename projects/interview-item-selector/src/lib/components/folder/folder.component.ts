@@ -44,21 +44,11 @@ export class FolderComponent {
   );
 
   anyItemsChecked$ = this.id$.pipe(
-    switchMap((id) =>
-      this.store.pipe(
-        select(itemSelector.selectFolderHasAnyCheckedItems(id)),
-        tapLog('any checked ID' + id + ';'),
-      ),
-    ),
+    switchMap((id) => this.store.pipe(select(itemSelector.selectFolderHasAnyCheckedItems(id)))),
   );
 
   allItemsChecked$ = this.id$.pipe(
-    switchMap((id) =>
-      this.store.pipe(
-        select(itemSelector.selectFolderHasAllCheckedItems(id)),
-        tapLog('all checked ID' + id + ';'),
-      ),
-    ),
+    switchMap((id) => this.store.pipe(select(itemSelector.selectFolderHasAllCheckedItems(id)))),
   );
 
   constructor(private store: Store<AppState>) {}
