@@ -14,7 +14,7 @@ import { cacheValue } from 'wf-core';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'interview-item-selector';
+  title = 'interview-posts-grid';
 
   constructor(private store: Store, private http: HttpClient) {
     this.store.pipe(tapLog('state'), cacheValue()).subscribe();
