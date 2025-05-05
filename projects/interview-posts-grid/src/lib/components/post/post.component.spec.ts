@@ -13,6 +13,10 @@ import { TEST_POST } from '../../util/data.test-utils';
 const testPost = TEST_POST();
 
 describe('PostComponent', () => {
+  // using a setup method over beforeEach has quite a few advantages
+  // - reduces a lot of issues with fakeAsync
+  // - very adaptable to different setup scenarios (i.e. can pass params to control config)
+  // - removes the (often untyped) convoluted list of var declarations at the top
   const setup = async () => {
     TestBed.configureTestingModule({ imports: [PostTest], providers: [storeProvider] });
 

@@ -37,6 +37,7 @@ export class PostComponent implements OnInit {
   displayPropIndex = signal<number>(INITIAL_PROP_INDEX);
   displayProp = computed(() => this.post()[POST_PROPS[this.displayPropIndex()]]);
 
+  // this an "event-flavored" stream: it doesn't replay emitted values and is prefix with "on"
   onUnfocus$ = toObservable(this.post).pipe(
     map((post) => post.isFocused),
     filter((isFocused) => !isFocused),

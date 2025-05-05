@@ -1,19 +1,13 @@
 # Item Selector
 
-This app is a project in an existing NX monorepo, developed on a feature branch.
-This choice was to leverage the many hours already invested in configuring the toolchain:
-- NX
-- Angular/NgRx
-- Vitest (recently migrated from Jest)
-- ESLint + Prettier
-
-Development done on Windows + WSL, so there's a possibility of unknown issues on Mac.
-
 ## Setup
 
 This project is currently built with **Node 22**/NPM 10.9:
 
 > npm i
+
+Development done on Windows + WSL, so there's a possibility of unknown issues on Mac.
+As noted below, this app is also part of an existing monorepo.
 
 ## Running the app
 
@@ -32,32 +26,27 @@ Tests can be run with the `test` target:
 
 > nx test interview-posts-grid
 
-## Re-cap
+While the tests run, something is off with the test runner setup because it won't extra accept arguments and using `.only` breaks things.
 
-Ended up putting about 8 hrs total into the assignment.
-This roughly lines up with my estimate, with a little extra time dealing with windows stuff:
+## Approach
 
-- 1 hr Reading reqs, reviewing design, blocking out approach
-- 1 hr Setting up project space and components
-- 1.5 hrs experimenting with data model and flow from API
-- 1 hr writing up NgRx reducer and selectors
-- 1.5 hrs building out components and template markup
-- 1 hr CSS and layout tweaks
-- 1 hr testing, defect fixes, and README write-up
+This app is a project in an existing NX monorepo, developed on a feature branch.
+This choice was to leverage the many hours already invested in configuring the toolchain:
+- NX
+- Angular/NgRx
+- Vitest (recently migrated from Jest)
+- ESLint + Prettier
 
-In a production setting I would put another ~2 hrs into writing tests for everything.
-It's possible to shave off some time cutting corners on stuff, but in this kind of circumstance, that itself takes effort.
-What's a good place to cut corners or not? Easier just to drop into my work flow.
+Also extended/repurposed another [code sample](https://github.com/thunder033/wayfinder/tree/interview-item-selector) 
+that ended up with much more [extensive usage of NgRx](https://github.com/thunder033/wayfinder/blob/interview-item-selector/projects/interview-item-selector/src/lib/state/item-selector.reducer.ts).
 
-### Approach
+A few areas of the solution include explanatory comments (though I generally aim for self-descriptive code).
+Most specifically there's some notes on Angular component harness/"setup" method, in post.component.spec/harness.
+Overall felt the requirements/constraints led to a pretty straightforward set of decisions.
 
-There were a few options for a general approach:
-- (selected) NgRx - loading data into a store - covers all core functionality
-- (not used) Pulling raw data into the parent component and re-structuring to a tree. Pass down the tree to each child.
-- (not used) Store all state in signals and use DI or component I/O to get child/parent component state
-- (not used) Use a root reactive form to store the checkbox states that can be checked for aggregated state
+I generally took a signals-first approach unless that seemed a bit clunky.
+Definitely simplified a lot of the component basics over RxJS and the interoperability 
+when observables are needed seems solid enough.
 
-Ultimately chose NgRx because it's in the monorepo, it met the need of another similar assignment, 
-and it felt the most production-ready and lowest risk solution. 
-Other solutions could have run into hurdles much later, where as with NgRx it's possible to
-map out the actions/and selectors with relatively low effort and know if there will be tricky issues.
+I gave Webstorm's local AI auto-complete another shot, but I will probably disable that again.
+It gave a few helpful suggestions, but mostly generates only plausible nonsense still.

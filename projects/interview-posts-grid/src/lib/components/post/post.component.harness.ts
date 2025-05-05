@@ -1,5 +1,10 @@
 import { BaseHarnessFilters, ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
+/**
+ * I've found Angular's ComponentHarnesses to be one of the best (integration)
+ * testing patterns out there: https://angular.dev/guide/testing/component-harnesses-overview,
+ * but I find the uptake is somewhat limited.
+ */
 export class PostHarness extends ComponentHarness {
   static hostSelector = 'app-post';
 
