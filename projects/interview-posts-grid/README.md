@@ -2,7 +2,7 @@
 
 ## Setup
 
-This project is currently built with **Node 22**/NPM 10.9:
+This project is currently built with **Node 22**/NPM 10.9. All commands can be run from the root of the monorepo:
 
 > npm i
 
