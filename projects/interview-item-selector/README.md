@@ -11,7 +11,7 @@ Development done on Windows + WSL, so there's a possibility of unknown issues on
 
 ## Setup
 
-This project is currently built with **Node 22**/NPM 10.9:
+This project is currently built with **Node 22**/NPM 10.9. All commands can be run in the root directory of the monorepo:
 
 > npm i
 
