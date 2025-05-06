@@ -39,15 +39,14 @@ This roughly lines up with my estimate, with a little extra time dealing with wi
 
 - 1 hr Reading reqs, reviewing design, blocking out approach
 - 1 hr Setting up project space and components
-- 1.5 hrs experimenting with data model and flow from API
-- 1 hr writing up NgRx reducer and selectors
+- 2 hrs building data model; NgRx reducer and selectors
 - 1.5 hrs building out components and template markup
 - 1 hr CSS and layout tweaks
 - 1 hr testing, defect fixes, and README write-up
 
-In a production setting I would put another ~2 hrs into writing tests for everything.
-It's possible to shave off some time cutting corners on stuff, but in this kind of circumstance, that itself takes effort.
-What's a good place to cut corners or not? Easier just to drop into my work flow.
+In a production setting I would put time into writing tests for everything.
+Another code sample includes my [approach to writing component tests](https://github.com/thunder033/wayfinder/blob/interview-posts-grid/projects/interview-posts-grid/src/lib/components/post/post.component.spec.ts).
+It's possible to shave off some time cutting corners on stuff, but in this kind of circumstance, it's easier just to drop into my work flow.
 
 ### Approach
 
