@@ -1,7 +1,10 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "wayfinder-poc",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
+  "sourceRoot": "projects/wayfinder-poc/src",
+  "prefix": "app",
+  "tags": ["scope:app"],
   "generators": {
     "@schematics/angular:component": {
       "style": "scss"
@@ -10,9 +13,6 @@
       "strict": true
     }
   },
-  "sourceRoot": "projects/wayfinder-poc/src",
-  "prefix": "app",
-  "tags": ["scope:app"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
@@ -21,18 +21,11 @@
           "base": "dist/wayfinder-poc"
         },
         "index": "projects/wayfinder-poc/src/index.html",
-        "polyfills": [
-          "projects/wayfinder-poc/src/polyfills.ts"
-        ],
+        "polyfills": ["projects/wayfinder-poc/src/polyfills.ts"],
         "tsConfig": "projects/wayfinder-poc/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
-        "assets": [
-          "projects/wayfinder-poc/src/favicon.ico",
-          "projects/wayfinder-poc/src/assets"
-        ],
-        "styles": [
-          "projects/wayfinder-poc/src/styles.scss"
-        ],
+        "assets": ["projects/wayfinder-poc/src/favicon.ico", "projects/wayfinder-poc/src/assets"],
+        "styles": ["projects/wayfinder-poc/src/styles.scss"],
         "scripts": [],
         "browser": "projects/wayfinder-poc/src/main.ts"
       },
@@ -77,7 +70,8 @@
           "buildTarget": "wayfinder-poc:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "continuous": true
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
