@@ -14,12 +14,16 @@ export interface WFEventType {
   [WFEvent.Destroy]: { teardown$$: Subject<Observable<unknown>> };
 }
 
+// WIP
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface IAnimatable<T> {
   present$(): Observable<void>;
   update$(properties: T): Observable<void>;
   teardown$(): Observable<void>;
 }
 
+// WIP
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface WFAnimationParams<T extends Renderable> {
   renderable: T;
   duration: number;

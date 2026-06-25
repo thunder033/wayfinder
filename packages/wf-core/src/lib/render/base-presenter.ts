@@ -47,7 +47,7 @@ export abstract class BasePresenter extends WFAnimatable(EventTarget) {
   destroy() {}
 
   initialize(...args: unknown[]): void {
-    console.log('initialize ' + this.constructor.name);
+    console.log('initialize ' + this.constructor.name, args);
     this.renderable$$.next(this.rootNode);
     this.onInitialize$$.next();
     this.onInitialize$$.complete();

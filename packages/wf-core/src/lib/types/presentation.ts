@@ -4,6 +4,8 @@ import { Node } from 'konva/lib/Node';
 
 import { Vector2 } from '../math';
 
+// WIP
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type TweenOptions<C extends Konva.NodeConfig, T extends Node<C>> = {
   [key in keyof C]?: C[key];
 } & {

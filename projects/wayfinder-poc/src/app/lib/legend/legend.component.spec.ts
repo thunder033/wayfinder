@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { StoreModule } from '@ngrx/store';
+import { network, region } from 'wf-core';
 
 import { LegendComponent } from './legend.component';
 
@@ -8,9 +10,14 @@ describe('LegendComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LegendComponent ]
-    })
-      .compileComponents();
+      imports: [
+        StoreModule.forRoot({
+          network: network.reducer,
+          region: region.reducer,
+        }),
+      ],
+      declarations: [LegendComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

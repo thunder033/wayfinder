@@ -1,6 +1,6 @@
 import angular from '@analogjs/vite-plugin-angular';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 interface ViteConfigOptions {
   dirName: string;
@@ -27,4 +27,4 @@ export const getViteBaseConfig = ({ dirName, name }: ViteConfigOptions) => ({
       provider: 'v8' as const,
     },
   },
-})
+});

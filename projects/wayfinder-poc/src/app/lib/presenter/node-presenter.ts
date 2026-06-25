@@ -2,7 +2,6 @@ import { select, Store } from '@ngrx/store';
 import Konva from 'konva';
 import { Bind } from 'lodash-decorators';
 import { combineLatest, filter, forkJoin, map, Observable, of, switchMap, take } from 'rxjs';
-
 import { cacheValue, FeatureType, Line, Station, WFNode, FeaturePresenter, network, Vector2, WFState } from 'wf-core';
 
 import { Camera } from '../viewport/camera';
@@ -21,7 +20,8 @@ function addLine(tray: MarkerTray, line: Line, angle: number): MarkerTray {
   return tray ? { ...tray, lineIds: [...tray.lineIds, line.id] } : { angle, lineIds: [line.id] };
 }
 
-// will be used by line node presenter
+// WIP will be used by line node presenter
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getTrayOffset(angle: number, markerTrays: MarkerTray[]): number {
   const u = new Vector2(Math.cos(angle), Math.sin(angle));
   return markerTrays.reduce((offset, tray) => {

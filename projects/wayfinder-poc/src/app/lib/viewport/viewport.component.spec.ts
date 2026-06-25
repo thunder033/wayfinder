@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { StoreModule } from '@ngrx/store';
+import { network, region } from 'wf-core';
 
 import { ViewportComponent } from './viewport.component';
 
@@ -8,9 +10,14 @@ describe('ViewportComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ViewportComponent ]
-    })
-      .compileComponents();
+      imports: [
+        StoreModule.forRoot({
+          network: network.reducer,
+          region: region.reducer,
+        }),
+      ],
+      declarations: [ViewportComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

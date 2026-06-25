@@ -1,6 +1,5 @@
 import Konva from 'konva';
 import { Observable, Subject, takeUntil } from 'rxjs';
-
 import { WFEvent, WFKonva } from 'wf-core';
 
 import { Camera } from '../viewport/camera';

@@ -1,6 +1,5 @@
 import Konva from 'konva';
 import { combineLatest, filter, map, Observable, switchMap, take, takeUntil, tap } from 'rxjs';
-
 import {
   cacheValue,
   toggleBy,
@@ -13,8 +12,8 @@ import {
   WFKonva,
 } from 'wf-core';
 
-import { Camera } from '../viewport/camera';
 import { NODE_STYLE, NodePresenter } from './node-presenter';
+import { Camera } from '../viewport/camera';
 
 export const STATION_MARKER_STYLE: Partial<Konva.CircleConfig> = {
   ...NODE_STYLE,

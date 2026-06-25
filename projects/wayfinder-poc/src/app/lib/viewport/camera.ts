@@ -1,6 +1,5 @@
 import Konva from 'konva';
 import { combineLatest, filter, map, mapTo, merge, Observable, take } from 'rxjs';
-
 import { cacheValue, Vector2 } from 'wf-core';
 
 export class Camera {

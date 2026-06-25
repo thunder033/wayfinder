@@ -17,9 +17,7 @@
     "build": {
       "executor": "@angular-devkit/build-angular:application",
       "options": {
-        "outputPath": {
-          "base": "dist/wayfinder-ui"
-        },
+        "outputPath": "dist/wayfinder-ui",
         "index": "projects/wayfinder-ui/src/index.html",
         "polyfills": ["projects/wayfinder-ui/src/polyfills.ts"],
         "tsConfig": "projects/wayfinder-ui/tsconfig.app.json",
@@ -84,6 +82,11 @@
         "reportsDirectory": "../coverage/wayfinder-poc"
       }
     },
-    "lint": {}
+    "lint": {},
+    "typecheck": {
+      "options": {
+        "commands": ["tsc -p tsconfig.app.json --noEmit"]
+      }
+    }
   }
 }

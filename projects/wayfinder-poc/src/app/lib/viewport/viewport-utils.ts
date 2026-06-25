@@ -1,5 +1,4 @@
 import { last } from 'lodash';
-
 import { Line, Segment, WFNode, Vector2 } from 'wf-core';
 
 export function add(a: number, b: number): number {

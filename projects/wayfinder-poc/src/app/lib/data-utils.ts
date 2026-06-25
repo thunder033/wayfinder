@@ -1,5 +1,4 @@
 import { isArray } from 'lodash';
-
 import {
   Alteration,
   Dehydrated,

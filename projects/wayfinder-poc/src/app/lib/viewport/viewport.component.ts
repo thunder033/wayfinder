@@ -17,13 +17,12 @@ import {
   take,
   takeUntil,
 } from 'rxjs';
-
 import { cacheValue, chainRead, withSampleFrom, getBoundingBox, region, System, Vector2, WFState } from 'wf-core';
 
+import { Camera } from './camera';
 import { Grid } from '../presenter/grid';
 import { NetworkPresenter } from '../presenter/network-presenter';
 import { SystemService } from '../system.service';
-import { Camera } from './camera';
 
 /**
  * Finds the bounds of all nodes in the system and calculates the center point
