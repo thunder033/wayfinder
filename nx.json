@@ -35,7 +35,7 @@
   },
   "namedInputs": {
     "sharedGlobals": [
-      "{workspaceRoot}/.gitub/**/*",
+      "{workspaceRoot}/.github/**/*",
       "{workspaceRoot}/tools/vite.config.base.ts",
       "{workspaceRoot}/.eslintrc.cjs",
       "{workspaceRoot}/.prettierrc",

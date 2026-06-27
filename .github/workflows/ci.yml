@@ -1,5 +1,5 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+# This workflow validates, builds, and publishes artifacts for wayfinder applications
+# Original reference: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
 name: Wayfinder CI
 
@@ -9,12 +9,16 @@ on:
   pull_request:
     branches: ['main']
 
-# reference: https://github.com/nrwl/nx-cloud-workflows/blob/main/.github/workflows/nx-cloud-workflow-validations.yml
+# NX reference: https://github.com/nrwl/nx-cloud-workflows/blob/main/.github/workflows/nx-cloud-workflow-validations.yml
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    outputs:
+      affectedApps: ${{ steps.getAffectedApps.outputs.affectedApps }} # JSON array of affected apps
+
     steps:
+      # Prepare
       - name: Checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
@@ -31,10 +35,48 @@ jobs:
         run: npm ci
 
       - name: Set NX affected SHAs # Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@v5
+        uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5
 
+      # Validate
       - run: npx nx affected -t typecheck
       - run: npx nx affected -t lint
       - run: npx nx affected -t test
       - run: npx nx format:check
-      - run: npx nx affected -t build
+
+      - name: Define affected apps
+        id: get-affected-apps
+        run: |
+          json=$(npx nx show projects --json --affected --with-target build)
+          echo "affectedApps=$json" >> "$GITHUB_OUTPUT"
+
+      # Build and Publish
+      - name: Build affected apps
+        run: npx nx affected -t build
+
+      # this can also be done with the matrix below instead if/when there's multiple applications
+      - if: ${{ contains(steps.get-affected-apps.outputs.affectedApps, 'wayfinder-poc') }}
+        name: Publish app wayfinder-poc artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: wayfinder-poc
+          path: |
+            dist/wayfinder-poc
+
+#  this would also need prepare and dependency caching
+#  build-and-publish:
+#    runs-on: ubuntu-latest
+#    needs: prepare-and-validate
+#    strategy:
+#      matrix:
+#        app: ${{ fromJSON(needs.prepare-and-validate.outputs.affectedApps) }}
+#
+#    steps:
+#      - name: Build app ${{ matrix.app }}
+#        run: npx nx build ${{ matrix.app }}
+#
+#      - name: Publish app ${{ matrix.app }} artifacts
+#        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+#        with:
+#          name: ${{ matrix.app }}
+#          path: |
+#            dist/${{ matrix.app }}
