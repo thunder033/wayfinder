@@ -15,20 +15,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 'Checkout project'
+    - name: Checkout project
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       with:
         fetch-depth: 0   # fetch all history for all branches and tags so NX has a baseline
         filter: 'tree:0' # creates a "treeless clone" of repo; trees/blobs fetched on demand
 
-    - name: 'Setup Node.JS'
+    - name: Setup Node.JS
       uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
       with:
         node-version: '24'
         cache: 'npm'
 
-    - name: 'Install dependencies'
+    - name: Install dependencies
       run: npm ci
+
+    - name: Set NX affected SHAs # Derive appropriate SHAs for base and head for `nx affected` commands
+      uses: nrwl/nx-set-shas@v5
 
     - run: npx nx affected -t typecheck
     - run: npx nx affected -t lint
