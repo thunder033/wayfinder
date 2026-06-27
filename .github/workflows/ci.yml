@@ -46,7 +46,8 @@ jobs:
       - name: Define affected apps
         id: get-affected-apps
         run: |
-          npx nx show projects --json --affected --with-target build >> "$GITHUB_OUTPUT"
+          json=$(npx nx show projects --json --affected --with-target build)
+          echo "affectedApps=$json" >> "$GITHUB_OUTPUT"
 
       # Build and Publish
       - name: Build affected apps
