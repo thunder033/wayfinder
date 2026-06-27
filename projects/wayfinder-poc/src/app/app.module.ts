@@ -10,11 +10,7 @@ import { SystemService } from './lib/system.service';
 import { ViewportComponent } from './lib/viewport/viewport.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    ViewportComponent,
-    LegendComponent,
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -22,8 +18,11 @@ import { ViewportComponent } from './lib/viewport/viewport.component';
       network: network.reducer,
       region: region.reducer,
     }),
+    ViewportComponent,
+    LegendComponent,
   ],
   providers: [SystemService],
-  bootstrap: [AppComponent]
+  exports: [LegendComponent],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
