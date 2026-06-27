@@ -6,6 +6,7 @@ Each transit network "alteration" contains entries that represent changes to the
 This workspace is structured as an NX-Angular monorepo, making heavy usage of the Konva canvas rendering framework.
 
 Code Notes:
+
 - `packages/wf-core`: state, types, utilities, math
 - `projects/wayfinder-poc`: initial rendering system, primary entry point `src/app/lib/viewport/viewport.component`
 - `projects/wayfinder-ui`: (nothing here yet, future re-architected version of the PoC)
