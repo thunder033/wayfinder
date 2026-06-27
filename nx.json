@@ -34,11 +34,20 @@
     }
   },
   "namedInputs": {
-    "sharedGlobals": [],
+    "sharedGlobals": [
+      "{workspaceRoot}/.gitub/**/*",
+      "{workspaceRoot}/tools/vite.config.base.ts",
+      "{workspaceRoot}/.eslintrc.cjs",
+      "{workspaceRoot}/.prettierrc",
+      "{workspaceRoot}/nx.json",
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/tsconfig.base.json"
+    ],
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
       "default",
       "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/README.md",
       "!{projectRoot}/**/*.spec.[jt]s",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/src/test-setup.[jt]s"

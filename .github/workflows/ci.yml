@@ -37,4 +37,4 @@ jobs:
       - run: npx nx affected -t lint
       - run: npx nx affected -t test
       - run: npx nx format:check
-      - run: npm nx affected -t build
+      - run: npx nx affected -t build
