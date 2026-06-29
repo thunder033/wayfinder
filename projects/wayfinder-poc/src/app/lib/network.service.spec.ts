@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { StoreModule } from '@ngrx/store';
+import { provideStore } from '@ngrx/store';
 import { network, region } from 'wf-core';
 
 import { NetworkService } from './network.service';
@@ -9,8 +9,8 @@ describe('NetworkService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        StoreModule.forRoot({
+      providers: [
+        provideStore({
           network: network.reducer,
           region: region.reducer,
         }),

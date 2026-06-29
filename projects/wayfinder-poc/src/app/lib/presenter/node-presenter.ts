@@ -2,7 +2,17 @@ import { select, Store } from '@ngrx/store';
 import Konva from 'konva';
 import { Bind } from 'lodash-decorators';
 import { combineLatest, filter, forkJoin, map, Observable, of, switchMap, take } from 'rxjs';
-import { cacheValue, FeatureType, Line, Station, WFNode, FeaturePresenter, network, Vector2, WFState } from 'wf-core';
+import {
+  cacheValue,
+  FeatureType,
+  Line,
+  Station,
+  WFNode,
+  FeaturePresenter,
+  network,
+  Vector2,
+  WFState,
+} from 'wf-core';
 
 import { Camera } from '../viewport/camera';
 import { getSegments } from '../viewport/viewport-utils';

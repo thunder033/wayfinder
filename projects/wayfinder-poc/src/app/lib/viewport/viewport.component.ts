@@ -1,3 +1,4 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import Konva from 'konva';
@@ -17,7 +18,16 @@ import {
   take,
   takeUntil,
 } from 'rxjs';
-import { cacheValue, chainRead, withSampleFrom, getBoundingBox, region, System, Vector2, WFState } from 'wf-core';
+import {
+  cacheValue,
+  chainRead,
+  withSampleFrom,
+  getBoundingBox,
+  region,
+  System,
+  Vector2,
+  WFState,
+} from 'wf-core';
 
 import { Camera } from './camera';
 import { Grid } from '../presenter/grid';
@@ -40,7 +50,7 @@ function getSystemCenter(system: System): Vector2 {
   selector: 'wf-viewport',
   templateUrl: './viewport.component.html',
   styleUrls: ['./viewport.component.scss'],
-  standalone: false,
+  imports: [AsyncPipe],
 })
 export class ViewportComponent implements OnDestroy {
   // populated when the render target element is available
