@@ -12,10 +12,6 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'import', '@nx'],
   rules: {
-    indent: ['off', 2, { SwitchCase: 1 }],
-    'linebreak-style': ['off', 'unix'],
-    quotes: ['error', 'single'],
-    semi: ['error', 'always'],
     '@typescript-eslint/no-namespace': ['off'],
     '@typescript-eslint/no-explicit-any': ['off'],
     '@typescript-eslint/no-empty-function': ['off'],
