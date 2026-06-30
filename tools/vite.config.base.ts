@@ -10,6 +10,7 @@ interface ViteConfigOptions {
 export const getViteBaseConfig = ({ dirName, name }: ViteConfigOptions) => ({
   root: dirName,
   cacheDir: `../../node_modules/.vite/${name}`,
+  // tsConfigPaths doesn't actually work one-to-one...
   plugins: [angular(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
   // Uncomment this if you are using workers.
   // worker: {

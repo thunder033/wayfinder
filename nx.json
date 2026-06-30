@@ -4,24 +4,28 @@
     "appsDir": "projects",
     "libsDir": "packages"
   },
+  "plugins": [
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testTargetName": "test",
+        "ciTargetName": "test-ci",
+        "ciGroupName": "Unit Tests (CI)",
+        "testMode": "run"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    }
+  ],
   "targetDefaults": {
     "build": {
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
-    },
-    "test": {
-      "cache": true,
-      "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
-      "inputs": ["default", "^production"]
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
-    "@nx/vitest:test": {
-      "cache": true,
-      "inputs": ["default", "^production"]
     },
     "typecheck": {
       "cache": true,
@@ -110,5 +114,6 @@
     "@schematics/angular:resolver": {
       "typeSeparator": "."
     }
-  }
+  },
+  "analytics": false
 }
