@@ -52,7 +52,7 @@ const getLineLength = (vertices: Vector2.Expression[]) => {
   while (vertices[index + 1]) {
     length += Vector2.from(vertices[index])
       .sub(vertices[index + 1])
-      .len();
+      .magnitude();
     index++;
   }
 

@@ -19,17 +19,22 @@ export function getSegments(line: Nullable<Line>): Segment[] {
 
 const getNetwork = (state: WFState) => state.network;
 
+/**
+ * narrows a generic dehydrated network feature (ID references to other nodes) input to specific
+ * network feature type (ex. segment, line, service, etc.)
+ */
 function asDehydrated<T extends NetworkFeature>(input: any): Dehydrated<T> {
   return asNetworkFeature(input) as Dehydrated<T>;
 }
 
 /**
- * Rebuild references in {@param input } to other features in {@param state}
+ * Rebuild references in {@param input} to other features in {@param state}
  */
 function getHydratedFeature<T extends NetworkFeature>(
   state: NetworkState,
   input: Dehydrated<T>,
 ): T {
+  // each net work feature type requires special handling since they have different structures
   switch (input?.type) {
     case FeatureType.Segment:
       return {
@@ -70,6 +75,9 @@ function getHydratedFeature<T extends NetworkFeature>(
 const getSystem = (id: string) =>
   createSelector(getNetwork, (state) => getHydratedFeature(state, state.system[id]));
 
+/**
+ * returns the last/top element of the alternation stack
+ */
 const peekAlterationStack = createSelector(
   getNetwork,
   ({ alterationStack }) => alterationStack?.[alterationStack.length - 1],
@@ -97,6 +105,7 @@ const getFeature = <T extends FeatureType>(id: string, type: T) =>
       ),
   );
 
+/** get the lines of which the given segment is a part of (i.e. get the lines that run through this segmenet */
 const getSegmentLines = (systemId: string, segmentId: string) =>
   createSelector(getFeature(systemId, FeatureType.System), (system: System) =>
     system.lines.map(getSegments).filter((segments) => segments.some(({ id }) => id === segmentId)),

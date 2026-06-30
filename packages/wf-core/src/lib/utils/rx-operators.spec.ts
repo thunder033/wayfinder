@@ -2,7 +2,7 @@ import { Observable, Observer, Subject } from 'rxjs';
 
 import { delayUntil } from './rx-operators';
 
-class TestObserver<T> implements Observer<T> {
+export class TestObserver<T> implements Observer<T> {
   static observe<T>(source$: Observable<T>) {
     const obs = new TestObserver();
     source$.subscribe(obs);
