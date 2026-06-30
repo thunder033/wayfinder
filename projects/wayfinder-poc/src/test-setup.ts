@@ -1,4 +1,3 @@
-import '@analogjs/vitest-angular/setup-zone';
 import 'vitest-canvas-mock';
 
 import { getTestBed } from '@angular/core/testing';

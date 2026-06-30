@@ -19,7 +19,7 @@
       "options": {
         "outputPath": "dist/wayfinder-ui",
         "index": "projects/wayfinder-ui/src/index.html",
-        "polyfills": ["projects/wayfinder-ui/src/polyfills.ts"],
+        "polyfills": [],
         "tsConfig": "projects/wayfinder-ui/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": ["projects/wayfinder-ui/src/favicon.ico", "projects/wayfinder-ui/src/assets"],
