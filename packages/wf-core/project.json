@@ -6,12 +6,6 @@
   "projectType": "library",
   "tags": ["scope:lib"],
   "targets": {
-    "test": {
-      "options": {
-        "reportsDirectory": "../coverage/wf-core"
-      }
-    },
-    "lint": {},
     "typecheck": {}
   }
 }

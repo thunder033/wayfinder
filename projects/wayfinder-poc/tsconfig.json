@@ -4,7 +4,7 @@
   "include": [],
   "references": [
     {
-      "path": "./tsconfig.lib.json"
+      "path": "./tsconfig.app.json"
     },
     {
       "path": "./tsconfig.spec.json"
@@ -15,10 +15,5 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  },
-  "compilerOptions": {
-    "module": "preserve",
-    "moduleResolution": "bundler",
-    "lib": ["dom", "es2022"]
   }
 }

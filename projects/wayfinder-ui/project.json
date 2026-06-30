@@ -77,12 +77,6 @@
         "buildTarget": "wayfinder-ui:build"
       }
     },
-    "test": {
-      "options": {
-        "reportsDirectory": "../coverage/wayfinder-poc"
-      }
-    },
-    "lint": {},
     "typecheck": {
       "options": {
         "commands": ["tsc -p tsconfig.app.json --noEmit"]
