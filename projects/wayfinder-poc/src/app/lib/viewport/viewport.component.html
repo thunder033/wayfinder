@@ -1,9 +1,9 @@
 <div>
   <div #viewport id="viewport"></div>
   <div class="control-panel">
-    <button (click)="systemService.rollBackAlteration()">&laquo; Prev</button>
-    <span>{{ currentYear$ | async }}</span>
-    <button (click)="systemService.applyNextAlteration()">Next &raquo;</button>
-    <button (click)="displayGrid(!displayGrid$$.value)">Toggle Grid</button>
+    <button qa-prev (click)="systemService.rollBackAlteration()">&laquo; Prev</button>
+    <span qa-current-year>{{ currentYear$ | async }}</span>
+    <button qa-next (click)="systemService.applyNextAlteration()">Next &raquo;</button>
+    <button qa-grid-toggle (click)="displayGrid(!displayGrid$$.value)">Toggle Grid</button>
   </div>
 </div>

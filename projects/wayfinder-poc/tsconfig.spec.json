@@ -12,6 +12,7 @@
     "vitest.config.ts",
     "vitest.config.mts",
     "src/**/*.spec.ts",
+    "src/**/*.harness.ts",
     "src/**/*.d.ts"
   ],
   "files": ["src/test-setup.ts"]

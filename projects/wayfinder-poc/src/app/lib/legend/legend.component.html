@@ -1,10 +1,10 @@
 <div class="legend">
   @if (systemService.system$ | async; as system) {
-    <h3>{{ system.name }}</h3>
-    @for (line of system.lines; track line) {
-      <div>
-        <div class="line-sample" [ngStyle]="{ background: line.color }"></div>{{ line.name }}
-      </div>
-    }
-  }
+  <h3 qa-system-name>{{ system.name }}</h3>
+  @for (line of system.lines; track line) {
+  <div qa-line>
+    <div qa-swatch class="line-sample" [ngStyle]="{ background: line.color }"></div>
+    {{ line.name }}
+  </div>
+  } }
 </div>

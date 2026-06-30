@@ -5,9 +5,7 @@ import { network, region } from 'wf-core';
 import { NetworkService } from './network.service';
 
 describe('NetworkService', () => {
-  let service: NetworkService;
-
-  beforeEach(() => {
+  const setup = () => {
     TestBed.configureTestingModule({
       providers: [
         provideStore({
@@ -16,10 +14,12 @@ describe('NetworkService', () => {
         }),
       ],
     });
-    service = TestBed.inject(NetworkService);
-  });
+    const service = TestBed.inject(NetworkService);
+    return { service };
+  };
 
   it('should be created', () => {
+    const { service } = setup();
     expect(service).toBeTruthy();
   });
 });
