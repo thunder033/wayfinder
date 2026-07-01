@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, viewChild } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { select, Store } from '@ngrx/store';
 import Konva from 'konva';
 import { map as _map } from 'lodash';
@@ -10,7 +11,6 @@ import {
   filter,
   fromEvent,
   map,
-  ReplaySubject,
   share,
   startWith,
   Subject,
@@ -30,6 +30,7 @@ import {
 } from 'wf-core';
 
 import { Camera } from './camera';
+import { NetworkService } from '../network.service';
 import { Grid } from '../presenter/grid';
 import { NetworkPresenter } from '../presenter/network-presenter';
 import { SystemService } from '../system.service';
@@ -53,12 +54,12 @@ function getSystemCenter(system: System): Vector2 {
   imports: [AsyncPipe],
 })
 export class ViewportComponent implements OnDestroy {
-  // populated when the render target element is available
-  renderTarget$ = new ReplaySubject<HTMLElement>(1);
-  @ViewChild('viewport')
-  private set renderTarget(ref: ElementRef) {
-    this.renderTarget$.next(ref.nativeElement);
-  }
+  renderTarget = viewChild.required<ElementRef>('viewport');
+  renderTarget$ = toObservable(this.renderTarget).pipe(
+    filter(Boolean),
+    map((ref) => ref.nativeElement),
+    cacheValue(),
+  );
 
   stage$ = this.renderTarget$.pipe(
     map(
@@ -93,7 +94,11 @@ export class ViewportComponent implements OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(public systemService: SystemService, private store: Store<WFState>) {
+  constructor(
+    public systemService: SystemService,
+    public networkService: NetworkService,
+    private store: Store<WFState>,
+  ) {
     // Since everything in here is downstream of the render target, we don't run into any
     // issues without waiting for ngOnInit
 

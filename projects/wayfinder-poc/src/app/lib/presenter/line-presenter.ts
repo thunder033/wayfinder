@@ -93,17 +93,19 @@ class LineDisplaySegment extends WFKonva.Extended(WFAnimatable(Konva.Line)) {
         this.points(asLinePoints(segmentVertices)).moveToBottom();
       });
 
+    // this only fires once when the segment is created and not for subsequence insertions/removals
     this.on$(WFEvent.Present)
       .pipe(
         sampleMap(this.segmentLength$),
         tap((length) => {
-          this.dashOffset(length);
+          this.dashOffset(0);
           this.dash([length]);
-          this.queueTween({
-            node: this,
-            dashOffset: 0,
-            duration: 0.5,
-          });
+          // it seems this tween never plays
+          // this.queueTween({
+          //   node: this,
+          //   dashOffset: 0,
+          //   duration: 0.5,
+          // });
         }),
       )
       .subscribe();
