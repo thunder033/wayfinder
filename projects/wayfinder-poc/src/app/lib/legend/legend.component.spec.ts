@@ -6,7 +6,7 @@ import { network, region } from 'wf-core';
 
 import { LegendComponent } from './legend.component';
 import { LegendHarness } from './legend.harness';
-import { SystemService } from '../system.service';
+import { NetworkService } from '../network.service';
 
 describe('LegendComponent', () => {
   const setup = async () => {
@@ -22,11 +22,9 @@ describe('LegendComponent', () => {
     const fixture = TestBed.createComponent(LegendComponent);
     const harness = await TestbedHarnessEnvironment.harnessForFixture(fixture, LegendHarness);
 
-    const system = TestBed.inject(SystemService);
-
     fixture.detectChanges();
 
-    return { fixture, harness, system };
+    return { fixture, harness, network: TestBed.inject(NetworkService) };
   };
 
   it('displays the system name', async () => {
@@ -43,8 +41,8 @@ describe('LegendComponent', () => {
     expect(await lines[0].getName()).toBe('Red Line');
     expect(await lines[0].getColor()).toBe('rgb(184, 64, 64)');
 
-    ctx.system.applyNextAlteration();
-    ctx.system.applyNextAlteration(); // 3rd alteration has 2 lines
+    ctx.network.applyNextAlteration();
+    ctx.network.applyNextAlteration(); // 3rd alteration has 2 lines
     ctx.fixture.detectChanges();
 
     lines = await ctx.harness.lines();

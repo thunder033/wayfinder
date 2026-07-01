@@ -3,13 +3,18 @@
 (so far) PoC of a dynamic transit map rendering system, displaying a regional network over time.
 Each transit network "alteration" contains entries that represent changes to the system over time (new lines, service changes, extensions. etc).
 
+The rendering engine builds an animated\* view of the system that updates when alterations are applied or rolled back.
+It calculates the visual geometry of the displayed system dynamically based off features in the network topography.
+
 This workspace is structured as an NX-Angular monorepo, making heavy usage of the Konva canvas rendering framework.
 
-Code Notes:
+Workspace modules:
 
 - `packages/wf-core`: state, types, utilities, math
 - `projects/wayfinder-poc`: initial rendering system, primary entry point `src/app/lib/viewport/viewport.component`
 - `projects/wayfinder-ui`: (nothing here yet, future re-architected version of the PoC)
+
+\*animations of line segments are currently not working
 
 ## Development server
 

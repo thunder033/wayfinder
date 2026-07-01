@@ -4,8 +4,11 @@ import { mapTo, merge, Observable, startWith, Subject, switchMap, take, takeUnti
 import { Renderable } from '../types/presentation';
 import { cacheValue } from '../utils/rx-operators';
 
+/** Lifecycle events for {@link Renderable} items */
 export enum WFEvent {
+  /** fires once when a {@link Renderable} is created and drawn on screen */
   Present = 'present',
+  /** fires once when a {@link Renderable} is destoryed */
   Destroy = 'destroy',
 }
 
@@ -30,6 +33,10 @@ interface WFAnimationParams<T extends Renderable> {
   curve: (dt: number) => number;
 }
 
+/**
+ * Event-based wrapper around the simple Konva.Tween animation
+ * controller
+ */
 export class WFTween extends Konva.Tween {
   override readonly onFinish;
   override readonly onReset;
